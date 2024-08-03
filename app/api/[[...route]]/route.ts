@@ -1,7 +1,5 @@
 import { Hono } from 'hono'
 import { handle } from 'hono/vercel'
-import { z } from 'zod'
-import { zValidator } from '@hono/zod-validator'
 import accounts from './accounts'
 
 // export const runtime = 'edge'
