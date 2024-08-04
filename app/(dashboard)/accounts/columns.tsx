@@ -1,10 +1,10 @@
 'use client'
 
-import { InferResponseType } from 'hono'
-import { client } from '@/lib/hono'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { client } from '@/lib/hono'
+import { InferResponseType } from 'hono'
+import { ArrowUpDown } from 'lucide-react'
 
 import { ColumnDef } from '@tanstack/react-table'
 
