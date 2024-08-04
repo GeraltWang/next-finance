@@ -24,6 +24,36 @@ const app = new Hono()
 		})
 		return c.json({ data })
 	})
+	.get('/:id', clerkMiddleware(), zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const auth = getAuth(c)
+
+		if (!auth?.userId) {
+			return c.json({ error: 'Unauthorized' }, 401)
+		}
+
+		const values = c.req.valid('param')
+
+		if (!values.id) {
+			return c.json({ error: 'Missing Account ID' }, 400)
+		}
+
+		const data = await prisma.account.findUnique({
+			where: {
+				id: values.id,
+				userId: auth.userId,
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		})
+
+		if (!data) {
+			return c.json({ error: 'Account not found' }, 404)
+		}
+
+		return c.json({ data })
+	})
 	.post('/', clerkMiddleware(), zValidator('json', AccountSchema), async c => {
 		const auth = getAuth(c)
 
