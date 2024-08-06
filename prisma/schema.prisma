@@ -15,15 +15,29 @@ datasource db {
 }
 
 model Account {
-  id      String  @id @default(cuid())
-  userId  String  @map("user_Id")
-  name    String
-  plaidId String? @map("plaid_Id")
+  id           String        @id @default(cuid())
+  userId       String        @map("user_id")
+  name         String
+  plaidId      String?       @map("plaid_id")
+  transactions Transaction[]
 }
 
 model Category {
-  id      String  @id @default(cuid())
-  userId  String  @map("user_Id")
-  name    String
-  plaidId String? @map("plaid_Id")
+  id           String        @id @default(cuid())
+  userId       String        @map("user_id")
+  name         String
+  plaidId      String?       @map("plaid_id")
+  transactions Transaction[]
+}
+
+model Transaction {
+  id         String    @id @default(cuid())
+  amount     Int
+  payee      String
+  notes      String?
+  date       DateTime  @default(now())
+  accountId  String    @map("account_id")
+  account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  categoryId String?   @map("category_id")
+  category   Category? @relation(fields: [categoryId], references: [id])
 }
