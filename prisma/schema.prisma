@@ -20,3 +20,10 @@ model Account {
   name    String
   plaidId String? @map("plaid_Id")
 }
+
+model Category {
+  id      String  @id @default(cuid())
+  userId  String  @map("user_Id")
+  name    String
+  plaidId String? @map("plaid_Id")
+}
