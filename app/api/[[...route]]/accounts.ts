@@ -142,5 +142,41 @@ const app = new Hono()
 			return c.json({ data })
 		}
 	)
+	.delete('/:id', clerkMiddleware(), zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const auth = getAuth(c)
+
+		if (!auth?.userId) {
+			return c.json({ error: 'Unauthorized' }, 401)
+		}
+
+		const values = c.req.valid('param')
+
+		if (!values.id) {
+			return c.json({ error: 'Missing Account ID' }, 400)
+		}
+
+		const existingAccount = await prisma.account.findUnique({
+			where: {
+				id: values.id,
+				userId: auth.userId,
+			},
+		})
+
+		if (!existingAccount) {
+			return c.json({ error: 'Account not found' }, 404)
+		}
+
+		const data = await prisma.account.delete({
+			where: {
+				id: values.id,
+				userId: auth.userId,
+			},
+			select: {
+				id: true,
+			},
+		})
+
+		return c.json({ data })
+	})
 
 export default app
