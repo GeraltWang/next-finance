@@ -126,6 +126,21 @@ const app = new Hono()
 
 		return c.json({ data })
 	})
+	.post('bulk-create', clerkMiddleware(), zValidator('json', z.array(TransactionSchema)), async c => {
+		const auth = getAuth(c)
+
+		if (!auth?.userId) {
+			return c.json({ error: 'Unauthorized' }, 401)
+		}
+
+		const values = c.req.valid('json')
+
+		const data = await prisma.transaction.createMany({
+			data: values,
+		})
+
+		return c.json({ data: data.count })
+	})
 	.post('/bulk-delete', clerkMiddleware(), zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
 		const auth = getAuth(c)
 
