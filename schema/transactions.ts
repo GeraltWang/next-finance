@@ -3,8 +3,8 @@ import { z } from 'zod'
 export const TransactionSchema = z.object({
 	amount: z.number().int(),
 	payee: z.string(),
-	notes: z.string().optional(),
-	date: z.date().default(() => new Date()),
+	notes: z.string().nullable().optional(),
+	date: z.coerce.date(),
 	accountId: z.string(),
-	categoryId: z.string().optional(),
+	categoryId: z.string().nullable().optional(),
 })
