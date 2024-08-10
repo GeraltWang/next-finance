@@ -126,7 +126,7 @@ const app = new Hono()
 
 		return c.json({ data })
 	})
-	.post('bulk-create', clerkMiddleware(), zValidator('json', z.array(TransactionSchema)), async c => {
+	.post('/bulk-create', clerkMiddleware(), zValidator('json', z.array(TransactionSchema)), async c => {
 		const auth = getAuth(c)
 
 		if (!auth?.userId) {
@@ -226,7 +226,7 @@ const app = new Hono()
 			where: {
 				id: values.id,
 				account: {
-					id: auth.userId,
+					userId: auth.userId,
 				},
 			},
 		})
@@ -239,7 +239,7 @@ const app = new Hono()
 			where: {
 				id: values.id,
 				account: {
-					id: auth.userId,
+					userId: auth.userId,
 				},
 			},
 			select: {
