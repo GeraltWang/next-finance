@@ -27,7 +27,10 @@ export const useEditCategory = (id?: string) => {
 			queryClient.invalidateQueries({
 				queryKey: ['categories'],
 			})
-			// TODO: 刷新 summary 和 transactions
+			queryClient.invalidateQueries({
+				queryKey: ['transactions'],
+			})
+			// TODO: 刷新 summary
 		},
 		onError: () => {
 			toast.error('Failed to edit category')

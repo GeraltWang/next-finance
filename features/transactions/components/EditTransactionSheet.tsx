@@ -1,18 +1,17 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { useDeleteAccount } from '@/features/accounts/api/use-delete-account'
-import { useEditAccount } from '@/features/accounts/api/use-edit-account'
-import { TransactionForm } from './TransactionForm'
-import { useOpenTransaction } from '../hooks/use-open-transaction'
+import { useCreateAccount } from '@/features/accounts/api/use-create-account'
+import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
+import { useCreateCategory } from '@/features/categories/api/use-create-category'
+import { useGetCategories } from '@/features/categories/api/use-get-categories'
 import { useConfirm } from '@/hooks/use-confirm'
 import { TransactionSchema } from '@/schema/transactions'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
-import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
-import { useCreateAccount } from '@/features/accounts/api/use-create-account'
-import { useGetCategories } from '@/features/categories/api/use-get-categories'
-import { useCreateCategory } from '@/features/categories/api/use-create-category'
-import { useGetTransaction } from '../api/use-get-transaction'
-import { useEditTransaction } from '../api/use-edit-transaction'
+import { useDeleteTransaction } from '@/features/transactions/api/use-delete-transaction'
+import { useEditTransaction } from '@/features/transactions/api/use-edit-transaction'
+import { useGetTransaction } from '@/features/transactions/api/use-get-transaction'
+import { useOpenTransaction } from '@/features/transactions/hooks/use-open-transaction'
+import { TransactionForm } from '@/features/transactions/components/TransactionForm'
 
 type FormValues = z.input<typeof TransactionSchema>
 
@@ -37,9 +36,23 @@ export const EditTransactionSheet = () => {
 		value: category.id,
 	}))
 
-	const isLoading = accountQuery.isLoading
-
 	const defaultValues = transactionQuery.data
+		? {
+				accountId: transactionQuery.data.accountId,
+				categoryId: transactionQuery.data.categoryId,
+				amount: transactionQuery.data.amount.toString(),
+				date: transactionQuery.data.date ? new Date(transactionQuery.data.date) : new Date(),
+				payee: transactionQuery.data.payee,
+				notes: transactionQuery.data.notes,
+		  }
+		: {
+				accountId: '',
+				categoryId: '',
+				amount: '',
+				date: new Date(),
+				payee: '',
+				notes: '',
+		  }
 
 	const editMutation = useEditTransaction(id)
 
@@ -51,11 +64,11 @@ export const EditTransactionSheet = () => {
 		})
 	}
 
-	const deleteMutation = useDeleteAccount(id)
+	const deleteMutation = useDeleteTransaction(id)
 
 	const [ConfirmDialog, confirm] = useConfirm(
 		'Are you sure?',
-		'Your are about to delete this account and this action cannot be undone.'
+		'Your are about to delete this transaction and this action cannot be undone.'
 	)
 
 	const handleDelete = async () => {
@@ -69,7 +82,14 @@ export const EditTransactionSheet = () => {
 		}
 	}
 
-	const isPending = editMutation.isPending || deleteMutation.isPending
+	const isLoading = transactionQuery.isLoading || accountQuery.isLoading || categoryQuery.isLoading
+
+	const isPending =
+		editMutation.isPending ||
+		deleteMutation.isPending ||
+		transactionQuery.isLoading ||
+		categoryMutation.isPending ||
+		accountMutation.isPending
 
 	return (
 		<>
@@ -77,8 +97,8 @@ export const EditTransactionSheet = () => {
 			<Sheet open={isOpen} onOpenChange={onClose}>
 				<SheetContent className='space-y-4'>
 					<SheetHeader>
-						<SheetTitle>Edit Account</SheetTitle>
-						<SheetDescription>Edit account name.</SheetDescription>
+						<SheetTitle>Edit Transaction</SheetTitle>
+						<SheetDescription>Edit an existing transaction.</SheetDescription>
 					</SheetHeader>
 					{isLoading ? (
 						<div className='absolute inset-0 flex justify-center items-center'>
@@ -86,12 +106,14 @@ export const EditTransactionSheet = () => {
 						</div>
 					) : (
 						<TransactionForm
+							id={id}
 							defaultValues={defaultValues}
 							onSubmit={handleSubmit}
 							categoryOptions={categoryOptions}
 							accountOptions={accountOptions}
 							onCreateCategory={onCreateCategory}
 							onCreateAccount={onCreateAccount}
+							onDelete={handleDelete}
 							disabled={isPending}
 						/>
 					)}
