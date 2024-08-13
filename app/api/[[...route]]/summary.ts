@@ -78,20 +78,21 @@ const app = new Hono().get(
 		const expensesChange = calculatePercentageChange(current.expenses, last.expenses)
 		const remainingChange = calculatePercentageChange(current.remaining, last.remaining)
 
-		const category = (await prisma.$queryRaw(
-			Prisma.sql`
-				SELECT "Category".name AS name, SUM(ABS("Transaction".amount)) AS amount
+		const category = (await prisma.$queryRaw`
+				SELECT 
+					"Category".name AS name, 
+					SUM(ABS("Transaction".amount)) AS amount
 				FROM "Transaction"
 				INNER JOIN "Category" ON "Transaction".category_id = "Category".id
 				INNER JOIN "Account" ON "Transaction".account_id = "Account".id
-				WHERE "Account".user_id = ${auth.userId}
+				WHERE
+					"Account".user_id = ${auth.userId}
 					AND "Transaction".date BETWEEN ${startDate}::timestamp AND ${endDate}::timestamp
 					${accountId ? Prisma.sql`AND "Transaction".account_id = ${accountId}` : Prisma.sql``}
 				GROUP BY "Category".name
 				HAVING SUM(ABS("Transaction".amount)) > 0
 				ORDER BY SUM(ABS("Transaction".amount)) DESC
-			`
-		)) as { name: string; amount: number }[]
+			`) as { name: string; amount: number }[]
 
 		const topCategories = category.slice(0, 3)
 		const otherCategories = category.slice(3)
@@ -130,7 +131,6 @@ const app = new Hono().get(
 
 		// 填补缺失的日期，因为并不是每天都有记录
 		const days = fillMissingDays(activeDaysData, startDate, endDate)
-		console.log('🚀 ~ days:', days)
 
 		return c.json({
 			data: {

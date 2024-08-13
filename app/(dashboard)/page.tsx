@@ -1,10 +1,9 @@
-import Image from 'next/image'
+import { DataGrid } from '@/components/DataGrid'
 
-export default function Home() {
+export default function OverviewPage() {
 	return (
-		<div>
-			<h1>Home</h1>
-			<Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+		<div className='max-w-screen-2xl mx-auto w-full pb-10 -mt-24'>
+			<DataGrid />
 		</div>
 	)
 }
