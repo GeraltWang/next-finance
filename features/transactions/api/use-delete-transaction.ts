@@ -17,14 +17,15 @@ export const useDeleteTransaction = (id?: string) => {
 		},
 		onSuccess: () => {
 			toast.success('Transaction deleted successfully')
-			// 刷新 transaction 和 transactions 查询
 			queryClient.invalidateQueries({
 				queryKey: ['transaction', { id }],
 			})
 			queryClient.invalidateQueries({
 				queryKey: ['transactions'],
 			})
-			// TODO: 刷新 summary
+			queryClient.invalidateQueries({
+				queryKey: ['summary'],
+			})
 		},
 		onError: () => {
 			toast.error('Failed to delete transaction')

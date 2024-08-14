@@ -20,7 +20,6 @@ export const useEditCategory = (id?: string) => {
 		},
 		onSuccess: () => {
 			toast.success('Category edited successfully')
-			// 刷新 category 和 categories 查询
 			queryClient.invalidateQueries({
 				queryKey: ['category', { id }],
 			})
@@ -30,7 +29,9 @@ export const useEditCategory = (id?: string) => {
 			queryClient.invalidateQueries({
 				queryKey: ['transactions'],
 			})
-			// TODO: 刷新 summary
+			queryClient.invalidateQueries({
+				queryKey: ['summary'],
+			})
 		},
 		onError: () => {
 			toast.error('Failed to edit category')
