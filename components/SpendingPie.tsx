@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { FileSearch, PieChart, Radar, Target } from 'lucide-react'
+import { FileSearch, Loader2, PieChart, Radar, Target } from 'lucide-react'
 import { useState } from 'react'
 import { PieVariant } from './PieVariant'
 import { RadarVariant } from './RadarVariant'
+import { RadialVariant } from './RadialVariant'
+import { Skeleton } from './ui/skeleton'
 
 type Props = {
 	data?: { name: string; amount: number }[]
@@ -57,9 +59,25 @@ export const SpendingPie = ({ data = [] }: Props) => {
 					<>
 						{chartType === 'pie' && <PieVariant data={data} />}
 						{chartType === 'radar' && <RadarVariant data={data} />}
-						{/* {chartType === 'radio' && <LineVariant data={data} />} */}
+						{chartType === 'radial' && <RadialVariant data={data} />}
 					</>
 				)}
+			</CardContent>
+		</Card>
+	)
+}
+
+export const SpendingPieLoading = () => {
+	return (
+		<Card className='border-none drop-shadow-sm'>
+			<CardHeader className='flex justify-between space-y-2 lg:space-y-0 lg:flex-row lg:items-center'>
+				<Skeleton className='w-48 h-8' />
+				<Skeleton className='w-full lg:w-[120px] h-9' />
+			</CardHeader>
+			<CardContent>
+				<div className='h-[350px] w-full flex items-center justify-center'>
+					<Loader2 className='size-6 text-slate-300 animate-spin' />
+				</div>
 			</CardContent>
 		</Card>
 	)
