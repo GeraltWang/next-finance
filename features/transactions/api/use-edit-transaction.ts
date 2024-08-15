@@ -20,7 +20,6 @@ export const useEditTransaction = (id?: string) => {
 		},
 		onSuccess: () => {
 			toast.success('Transaction edited successfully')
-			// 刷新 account 和 accounts 查询
 			queryClient.invalidateQueries({
 				queryKey: ['transaction', { id }],
 			})
