@@ -1,5 +1,5 @@
 import { HeaderBar } from '@/components/HeaderBar'
-import React from 'react'
+import { Footer } from '@/components/Footer'
 
 const DashboardLayout = ({
 	children,
@@ -10,6 +10,7 @@ const DashboardLayout = ({
 		<>
 			<HeaderBar />
 			<main className='px-3 lg:px-14'>{children}</main>
+			<Footer />
 		</>
 	)
 }
