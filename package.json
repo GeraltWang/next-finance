@@ -9,9 +9,9 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
-		"@clerk/backend": "^1.6.2",
-		"@clerk/localizations": "^2.5.7",
-		"@clerk/nextjs": "^5.3.0",
+		"@clerk/backend": "^1.6.3",
+		"@clerk/localizations": "^2.5.8",
+		"@clerk/nextjs": "^5.3.1",
 		"@hono/clerk-auth": "^2.0.0",
 		"@hono/zod-validator": "^0.2.2",
 		"@hookform/resolvers": "^3.9.0",
@@ -35,6 +35,7 @@
 		"lucide-react": "^0.419.0",
 		"next": "14.2.5",
 		"next-themes": "^0.3.0",
+		"query-string": "^9.1.0",
 		"react": "^18",
 		"react-countup": "^6.5.3",
 		"react-currency-input-field": "^3.8.0",
@@ -61,7 +62,7 @@
 		"eslint-config-next": "14.2.5",
 		"postcss": "^8",
 		"prisma": "^5.18.0",
-		"tailwindcss": "^3.4.9",
+		"tailwindcss": "^3.4.10",
 		"typescript": "^5"
 	}
 }
