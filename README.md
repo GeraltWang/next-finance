@@ -1,6 +1,7 @@
-# next-finance
-
-![next-finance logo](public/logo.svg)
+<div style="text-align: center; margin-top: 50px;">
+    <h1>Next Finance</h1>
+    <img src="public/logo.svg" alt="next-finance logo">
+</div>
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
@@ -29,7 +30,7 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 - Styling: [`Tailwind CSS`](https://tailwindcss.com/)
 - UI [`shadcn/ui`](https://ui.shadcn.com/)
 - ORM: [`Prisma`](https://prisma.io/)
-- API: [`hono](https://hono.dev/)
+- API: [`hono`](https://hono.dev/)
 - Authentication: [`Clerk`](https://clerk.com/)
 
 ## Learn More 📚
