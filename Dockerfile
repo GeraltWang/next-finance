@@ -22,4 +22,8 @@ ENV PORT 80
 
 ENV HOSTNAME="0.0.0.0"
 
-RUN pnpm run build && pnpm run start
+# 构建项目
+RUN pnpm run build
+
+# 启动应用
+CMD ["pnpm", "run", "start"]
