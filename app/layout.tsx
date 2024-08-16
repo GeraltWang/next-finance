@@ -1,5 +1,4 @@
 import { QueryProvider } from '@/providers/query-provider'
-import { SheetProvider } from '@/providers/sheet-provider'
 import { zhCN } from '@clerk/localizations'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Toaster } from '@/components/ui/sonner'
@@ -24,7 +23,6 @@ export default function RootLayout({
 			<html lang='zh-CN'>
 				<body className={inter.className}>
 					<QueryProvider>
-						<SheetProvider />
 						<Toaster />
 						{children}
 					</QueryProvider>

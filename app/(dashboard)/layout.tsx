@@ -1,5 +1,6 @@
 import { HeaderBar } from '@/components/HeaderBar'
 import { Footer } from '@/components/Footer'
+import { SheetProvider } from '@/providers/sheet-provider'
 
 const DashboardLayout = ({
 	children,
@@ -11,6 +12,7 @@ const DashboardLayout = ({
 			<HeaderBar />
 			<main className='flex-1 px-3 lg:px-14'>{children}</main>
 			<Footer />
+			<SheetProvider />
 		</div>
 	)
 }
