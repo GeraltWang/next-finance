@@ -27,7 +27,7 @@ const app = new Hono().post(
 		const header = c.req.valid('header')
 		console.log('🚀 ~ header:', header)
 
-		const body = c.req.json()
+		const body = await c.req.json()
 		console.log('🚀 ~ body:', body)
 
 		// Create a new Svix instance with your secret.
