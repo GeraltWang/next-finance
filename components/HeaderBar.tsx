@@ -2,8 +2,7 @@ import { Filters } from '@/components/Filters'
 import { HeaderLogo } from '@/components/HeaderLogo'
 import { NavMenu } from '@/components/NavMenu'
 import { WelcomeMsg } from '@/components/WelcomeMsg'
-import { ClerkLoaded, ClerkLoading, UserButton } from '@clerk/nextjs'
-import { Loader2 } from 'lucide-react'
+import { ClerkLoaded, UserButton } from '@clerk/nextjs'
 
 export const HeaderBar = () => {
 	return (
@@ -17,9 +16,6 @@ export const HeaderBar = () => {
 					<ClerkLoaded>
 						<UserButton />
 					</ClerkLoaded>
-					<ClerkLoading>
-						<Loader2 className='size-8 animate-spin text-slate-400' />
-					</ClerkLoading>
 				</div>
 				<WelcomeMsg />
 				<Filters />
