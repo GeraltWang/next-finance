@@ -25,7 +25,12 @@ export const BarVariant = ({ data }: Props) => {
 				<CartesianGrid strokeDasharray={'3 3'} />
 				<ChartTooltip content={<CustomTooltip />} />
 				<Bar className='drop-shadow-sm' dataKey='income' fill='var(--color-income)' radius={4} />
-				<Bar className='drop-shadow-sm' dataKey='expenses' fill='var(--color-expenses)' radius={4} />
+				<Bar
+					className='drop-shadow-sm'
+					dataKey='expenses'
+					fill='var(--color-expenses)'
+					radius={4}
+				/>
 				<XAxis
 					axisLine={false}
 					tickLine={false}

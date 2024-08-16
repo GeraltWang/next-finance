@@ -1,4 +1,3 @@
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -13,7 +12,7 @@ export const NavMenuLink = ({ href, label, active }: Props) => {
 	return (
 		<Button
 			className={cn(
-				'w-full lg:w-auto lg:justify-between font-normal hover:bg-white/20 text-white hover:text-white border-none outline-none focus-visible:ring-offset-0 focus-visible:ring-transparent focus:bg-white/30 transition',
+				'w-full border-none font-normal text-white outline-none transition hover:bg-white/20 hover:text-white focus:bg-white/30 focus-visible:ring-transparent focus-visible:ring-offset-0 lg:w-auto lg:justify-between',
 				active ? 'bg-white/10 text-white' : 'bg-transparent'
 			)}
 			asChild

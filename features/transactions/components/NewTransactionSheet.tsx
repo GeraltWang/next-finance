@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useCreateCategory } from '@/features/categories/api/use-create-category'
@@ -33,7 +39,8 @@ export const NewTransactionSheet = () => {
 		value: category.id,
 	}))
 
-	const isPending = transactionMutation.isPending || accountMutation.isPending || categoryMutation.isPending
+	const isPending =
+		transactionMutation.isPending || accountMutation.isPending || categoryMutation.isPending
 
 	const isLoading = accountQuery.isLoading || categoryQuery.isLoading
 
@@ -53,8 +60,8 @@ export const NewTransactionSheet = () => {
 					<SheetDescription>Add a new transaction.</SheetDescription>
 				</SheetHeader>
 				{isLoading ? (
-					<div className='absolute inset-0 flex justify-center items-center'>
-						<Loader2 className='size-6 text-slate-300 animate-spin' />
+					<div className='absolute inset-0 flex items-center justify-center'>
+						<Loader2 className='size-6 animate-spin text-slate-300' />
 					</div>
 				) : (
 					<TransactionForm

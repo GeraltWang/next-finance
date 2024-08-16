@@ -1,4 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -16,7 +22,7 @@ export const ImportTableHeadSelect = ({ columnIndex, selectedColumns, onChange }
 		<Select value={currentSelection || ''} onValueChange={value => onChange(columnIndex, value)}>
 			<SelectTrigger
 				className={cn(
-					'focus:ring-offset-0 focus:ring-transparent outline-none border-none bg-transparent capitalize',
+					'border-none bg-transparent capitalize outline-none focus:ring-transparent focus:ring-offset-0',
 					currentSelection && 'text-blue-500'
 				)}
 			>
@@ -26,7 +32,8 @@ export const ImportTableHeadSelect = ({ columnIndex, selectedColumns, onChange }
 				<SelectItem value='skip'>skip</SelectItem>
 				{options.map((option, index) => {
 					const disabled =
-						Object.values(selectedColumns).includes(option) && selectedColumns[`column_${columnIndex}`] !== option
+						Object.values(selectedColumns).includes(option) &&
+						selectedColumns[`column_${columnIndex}`] !== option
 
 					return (
 						<SelectItem className='capitalize' key={index} value={option} disabled={disabled}>

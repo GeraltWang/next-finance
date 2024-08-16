@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { useDeleteCategory } from '@/features/categories/api/use-delete-category'
 import { useEditCategory } from '@/features/categories/api/use-edit-category'
 import { useGetCategory } from '@/features/categories/api/use-get-category'
@@ -60,8 +66,8 @@ export const EditCategorySheet = () => {
 						<SheetDescription>Edit Category name.</SheetDescription>
 					</SheetHeader>
 					{isLoading ? (
-						<div className='absolute inset-0 flex justify-center items-center'>
-							<Loader2 className='size-6 text-slate-300 animate-spin' />
+						<div className='absolute inset-0 flex items-center justify-center'>
+							<Loader2 className='size-6 animate-spin text-slate-300' />
 						</div>
 					) : (
 						<CategoryForm

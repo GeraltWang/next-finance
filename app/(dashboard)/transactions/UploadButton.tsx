@@ -14,7 +14,7 @@ export const UploadButton = ({ onUpload }: Props) => {
 		<CSVReader onUploadAccepted={onUpload}>
 			{({ getRootProps }: any) => (
 				<Button className='w-full lg:w-auto' size={'sm'} {...getRootProps()}>
-					<Upload className='size-4 mr-2' />
+					<Upload className='mr-2 size-4' />
 					Import
 				</Button>
 			)}

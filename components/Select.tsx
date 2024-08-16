@@ -12,7 +12,14 @@ type Props = {
 	placeholder?: string
 }
 
-export const Select = ({ onChange, onCreate, value, options = [], disabled, placeholder }: Props) => {
+export const Select = ({
+	onChange,
+	onCreate,
+	value,
+	options = [],
+	disabled,
+	placeholder,
+}: Props) => {
 	const onSelect = (option: SingleValue<{ label: string; value: string }>) => {
 		onChange(option?.value)
 	}
@@ -23,7 +30,7 @@ export const Select = ({ onChange, onCreate, value, options = [], disabled, plac
 
 	return (
 		<CreatableSelect
-			className='text-sm h-10'
+			className='h-10 text-sm'
 			styles={{
 				control: base => ({
 					...base,

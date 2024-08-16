@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { useDeleteAccount } from '@/features/accounts/api/use-delete-account'
 import { useEditAccount } from '@/features/accounts/api/use-edit-account'
 import { useGetAccount } from '@/features/accounts/api/use-get-account'
@@ -60,8 +66,8 @@ export const EditAccountSheet = () => {
 						<SheetDescription>Edit account name.</SheetDescription>
 					</SheetHeader>
 					{isLoading ? (
-						<div className='absolute inset-0 flex justify-center items-center'>
-							<Loader2 className='size-6 text-slate-300 animate-spin' />
+						<div className='absolute inset-0 flex items-center justify-center'>
+							<Loader2 className='size-6 animate-spin text-slate-300' />
 						</div>
 					) : (
 						<AccountForm

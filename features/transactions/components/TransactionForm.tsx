@@ -5,7 +5,14 @@ import { TransactionSchema } from '@/schema/transactions'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 import { DatePicker } from '@/components/DatePicker'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/Select'
@@ -157,7 +164,12 @@ export const TransactionForm = ({
 						<FormItem>
 							<FormLabel>Notes</FormLabel>
 							<FormControl>
-								<Textarea {...field} value={field.value ?? ''} disabled={disabled} placeholder='Notes is optional' />
+								<Textarea
+									{...field}
+									value={field.value ?? ''}
+									disabled={disabled}
+									placeholder='Notes is optional'
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -175,7 +187,7 @@ export const TransactionForm = ({
 						disabled={disabled}
 						onClick={handleDelete}
 					>
-						<Trash className='size-4 mr-2' />
+						<Trash className='mr-2 size-4' />
 						Delete Transaction
 					</Button>
 				)}

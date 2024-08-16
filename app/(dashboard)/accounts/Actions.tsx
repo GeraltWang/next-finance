@@ -1,7 +1,12 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useDeleteAccount } from '@/features/accounts/api/use-delete-account'
 import { useOpenAccount } from '@/features/accounts/hooks/use-open-account'
 import { useConfirm } from '@/hooks/use-confirm'
@@ -44,7 +49,7 @@ export const Actions = ({ id }: Props) => {
 							onOpen(id)
 						}}
 					>
-						<Edit className='size-4 mr-2' />
+						<Edit className='mr-2 size-4' />
 						Edit
 					</DropdownMenuItem>
 					<DropdownMenuItem
@@ -53,7 +58,7 @@ export const Actions = ({ id }: Props) => {
 							handleDelete()
 						}}
 					>
-						<Trash className='size-4 mr-2' />
+						<Trash className='mr-2 size-4' />
 						Delete
 					</DropdownMenuItem>
 				</DropdownMenuContent>

@@ -21,7 +21,9 @@ export const columns: ColumnDef<ResponseType>[] = [
 		id: 'select',
 		header: ({ table }) => (
 			<Checkbox
-				checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+				checked={
+					table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
+				}
 				onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
 				aria-label='Select all'
 			/>
@@ -40,7 +42,10 @@ export const columns: ColumnDef<ResponseType>[] = [
 		accessorKey: 'date',
 		header: ({ column }) => {
 			return (
-				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+				<Button
+					variant='ghost'
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
 					Date
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
@@ -55,7 +60,10 @@ export const columns: ColumnDef<ResponseType>[] = [
 		accessorKey: 'category',
 		header: ({ column }) => {
 			return (
-				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+				<Button
+					variant='ghost'
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
 					Category
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
@@ -75,7 +83,10 @@ export const columns: ColumnDef<ResponseType>[] = [
 		accessorKey: 'payee',
 		header: ({ column }) => {
 			return (
-				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+				<Button
+					variant='ghost'
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
 					Payee
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
@@ -86,7 +97,10 @@ export const columns: ColumnDef<ResponseType>[] = [
 		accessorKey: 'amount',
 		header: ({ column }) => {
 			return (
-				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+				<Button
+					variant='ghost'
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
 					Amount
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
@@ -95,7 +109,10 @@ export const columns: ColumnDef<ResponseType>[] = [
 		cell: ({ row }) => {
 			const amount = parseFloat(row.getValue('amount'))
 			return (
-				<Badge className='text-xs font-medium px-3.5 py-2.5' variant={amount < 0 ? 'destructive' : 'primary'}>
+				<Badge
+					className='px-3.5 py-2.5 text-xs font-medium'
+					variant={amount < 0 ? 'destructive' : 'primary'}
+				>
 					{formatCurrency(amount)}
 				</Badge>
 			)
@@ -105,14 +122,19 @@ export const columns: ColumnDef<ResponseType>[] = [
 		accessorKey: 'account',
 		header: ({ column }) => {
 			return (
-				<Button variant='ghost' onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+				<Button
+					variant='ghost'
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
 					Account
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
 			)
 		},
 		cell: ({ row }) => {
-			return <AccountColumn account={row.original.account.name} accountId={row.original.accountId} />
+			return (
+				<AccountColumn account={row.original.account.name} accountId={row.original.accountId} />
+			)
 		},
 	},
 	{

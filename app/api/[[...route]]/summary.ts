@@ -62,7 +62,10 @@ const app = new Hono().get(
 				.filter(transaction => transaction.amount < 0)
 				.reduce((sum, transaction) => sum + Number(transaction.amount), 0)
 
-			const remaining = transactions.reduce((sum, transaction) => sum + Number(transaction.amount), 0)
+			const remaining = transactions.reduce(
+				(sum, transaction) => sum + Number(transaction.amount),
+				0
+			)
 
 			return {
 				income,

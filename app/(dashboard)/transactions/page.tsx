@@ -58,7 +58,6 @@ const TransactionsPage = () => {
 			...value,
 			accountId: accountId as string,
 		}))
-		console.log('🚀 ~ dataWithAccount ~ dataWithAccount:', dataWithAccount)
 
 		bulkCreateTransactions.mutate(dataWithAccount, {
 			onSuccess: () => {
@@ -79,14 +78,14 @@ const TransactionsPage = () => {
 
 	if (isLoading) {
 		return (
-			<section className='max-w-screen-2xl mx-auto w-full pb-10 -mt-24'>
+			<section className='mx-auto -mt-24 w-full max-w-screen-2xl pb-10'>
 				<Card className='border-none drop-shadow-sm'>
 					<CardHeader>
 						<Skeleton className='h-8 w-48' />
 					</CardHeader>
 					<CardContent>
-						<div className='w-full h-[500px] flex justify-center items-center'>
-							<Loader2 className='size-6 text-slate-300 animate-spin' />
+						<div className='flex h-[500px] w-full items-center justify-center'>
+							<Loader2 className='size-6 animate-spin text-slate-300' />
 						</div>
 					</CardContent>
 				</Card>
@@ -104,13 +103,13 @@ const TransactionsPage = () => {
 	}
 
 	return (
-		<section className='max-w-screen-2xl mx-auto w-full pb-10 -mt-24'>
+		<section className='mx-auto -mt-24 w-full max-w-screen-2xl pb-10'>
 			<Card className='border-none drop-shadow-sm'>
 				<CardHeader className='gap-y-2 lg:flex-row lg:items-center lg:justify-between'>
-					<CardTitle className='text-xl line-clamp-1'>Transactions</CardTitle>
-					<div className='flex items-center flex-col lg:flex-row gap-2'>
+					<CardTitle className='line-clamp-1 text-xl'>Transactions</CardTitle>
+					<div className='flex flex-col items-center gap-2 lg:flex-row'>
 						<Button className='w-full lg:w-auto' size={'sm'} onClick={onOpen}>
-							<Plus className='size-4 mr-2' />
+							<Plus className='mr-2 size-4' />
 							Add New Transaction
 						</Button>
 						<UploadButton onUpload={onUpload} />

@@ -49,7 +49,7 @@ export const NavMenu = () => {
 			<Sheet open={isOpen} onOpenChange={setIsOpen}>
 				<SheetTrigger>
 					<Button
-						className='font-normal border-none text-white hover:text-white bg-white/10 hover:bg-white/20 focus:bg-white/30 focus-visible:ring-offset-0 focus-visible:ring-transparent transition'
+						className='border-none bg-white/10 font-normal text-white transition hover:bg-white/20 hover:text-white focus:bg-white/30 focus-visible:ring-transparent focus-visible:ring-offset-0'
 						variant={'outline'}
 						size={'sm'}
 					>
@@ -78,9 +78,14 @@ export const NavMenu = () => {
 	}
 
 	return (
-		<nav className='hidden lg:flex lg:items-center lg:gap-x-2 overflow-x-auto'>
+		<nav className='hidden overflow-x-auto lg:flex lg:items-center lg:gap-x-2'>
 			{routes.map(route => (
-				<NavMenuLink href={route.href} label={route.label} active={pathname === route.href} key={route.href} />
+				<NavMenuLink
+					href={route.href}
+					label={route.label}
+					active={pathname === route.href}
+					key={route.href}
+				/>
 			))}
 		</nav>
 	)

@@ -11,23 +11,25 @@ export const CustomTooltip = ({ active, payload }: any) => {
 	const expenses = payload[1].value
 
 	return (
-		<div className='rounded-sm bg-white shadow-sm border overflow-hidden'>
-			<div className='text-sm p-2 px-3 bg-muted text-muted-foreground'>{format(date, 'MMM dd, yyyy')}</div>
+		<div className='overflow-hidden rounded-sm border bg-white shadow-sm'>
+			<div className='bg-muted p-2 px-3 text-sm text-muted-foreground'>
+				{format(date, 'MMM dd, yyyy')}
+			</div>
 			<Separator />
-			<div className='p-2 px-3 space-y-1'>
+			<div className='space-y-1 p-2 px-3'>
 				<div className='flex items-center justify-between gap-x-4'>
 					<div className='flex items-center gap-x-2'>
-						<div className='size-1.5 bg-blue-500 rounded-full' />
+						<div className='size-1.5 rounded-full bg-blue-500' />
 						<p className='text-sm text-muted-foreground'>Income</p>
 					</div>
-					<p className='text-sm text-right font-medium'>{formatCurrency(income)}</p>
+					<p className='text-right text-sm font-medium'>{formatCurrency(income)}</p>
 				</div>
 				<div className='flex items-center justify-between gap-x-4'>
 					<div className='flex items-center gap-x-2'>
-						<div className='size-1.5 bg-rose-500 rounded-full' />
+						<div className='size-1.5 rounded-full bg-rose-500' />
 						<p className='text-sm text-muted-foreground'>Expenses</p>
 					</div>
-					<p className='text-sm text-right font-medium'>{formatCurrency(expenses)}</p>
+					<p className='text-right text-sm font-medium'>{formatCurrency(expenses)}</p>
 				</div>
 			</div>
 		</div>

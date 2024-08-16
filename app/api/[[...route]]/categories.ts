@@ -24,36 +24,41 @@ const app = new Hono()
 		})
 		return c.json({ data })
 	})
-	.get('/:id', clerkMiddleware(), zValidator('param', z.object({ id: z.string().optional() })), async c => {
-		const auth = getAuth(c)
+	.get(
+		'/:id',
+		clerkMiddleware(),
+		zValidator('param', z.object({ id: z.string().optional() })),
+		async c => {
+			const auth = getAuth(c)
 
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
+			if (!auth?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
+
+			const values = c.req.valid('param')
+
+			if (!values.id) {
+				return c.json({ error: 'Missing Category ID' }, 400)
+			}
+
+			const data = await prisma.category.findUnique({
+				where: {
+					id: values.id,
+					userId: auth.userId,
+				},
+				select: {
+					id: true,
+					name: true,
+				},
+			})
+
+			if (!data) {
+				return c.json({ error: 'Category not found' }, 404)
+			}
+
+			return c.json({ data })
 		}
-
-		const values = c.req.valid('param')
-
-		if (!values.id) {
-			return c.json({ error: 'Missing Category ID' }, 400)
-		}
-
-		const data = await prisma.category.findUnique({
-			where: {
-				id: values.id,
-				userId: auth.userId,
-			},
-			select: {
-				id: true,
-				name: true,
-			},
-		})
-
-		if (!data) {
-			return c.json({ error: 'Category not found' }, 404)
-		}
-
-		return c.json({ data })
-	})
+	)
 	.post('/', clerkMiddleware(), zValidator('json', CategorySchema), async c => {
 		const auth = getAuth(c)
 
@@ -76,26 +81,31 @@ const app = new Hono()
 
 		return c.json({ data })
 	})
-	.post('/bulk-delete', clerkMiddleware(), zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
-		const auth = getAuth(c)
+	.post(
+		'/bulk-delete',
+		clerkMiddleware(),
+		zValidator('json', z.object({ ids: z.array(z.string()) })),
+		async c => {
+			const auth = getAuth(c)
 
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
+			if (!auth?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
 
-		const values = c.req.valid('json')
+			const values = c.req.valid('json')
 
-		await prisma.category.deleteMany({
-			where: {
-				id: {
-					in: values.ids,
+			await prisma.category.deleteMany({
+				where: {
+					id: {
+						in: values.ids,
+					},
+					userId: auth.userId,
 				},
-				userId: auth.userId,
-			},
-		})
+			})
 
-		return c.json({ data: values.ids })
-	})
+			return c.json({ data: values.ids })
+		}
+	)
 	.patch(
 		'/:id',
 		clerkMiddleware(),
@@ -142,41 +152,46 @@ const app = new Hono()
 			return c.json({ data })
 		}
 	)
-	.delete('/:id', clerkMiddleware(), zValidator('param', z.object({ id: z.string().optional() })), async c => {
-		const auth = getAuth(c)
+	.delete(
+		'/:id',
+		clerkMiddleware(),
+		zValidator('param', z.object({ id: z.string().optional() })),
+		async c => {
+			const auth = getAuth(c)
 
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
+			if (!auth?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
+
+			const values = c.req.valid('param')
+
+			if (!values.id) {
+				return c.json({ error: 'Missing Category ID' }, 400)
+			}
+
+			const existingCategory = await prisma.category.findUnique({
+				where: {
+					id: values.id,
+					userId: auth.userId,
+				},
+			})
+
+			if (!existingCategory) {
+				return c.json({ error: 'Category not found' }, 404)
+			}
+
+			const data = await prisma.category.delete({
+				where: {
+					id: values.id,
+					userId: auth.userId,
+				},
+				select: {
+					id: true,
+				},
+			})
+
+			return c.json({ data })
 		}
-
-		const values = c.req.valid('param')
-
-		if (!values.id) {
-			return c.json({ error: 'Missing Category ID' }, 400)
-		}
-
-		const existingCategory = await prisma.category.findUnique({
-			where: {
-				id: values.id,
-				userId: auth.userId,
-			},
-		})
-
-		if (!existingCategory) {
-			return c.json({ error: 'Category not found' }, 404)
-		}
-
-		const data = await prisma.category.delete({
-			where: {
-				id: values.id,
-				userId: auth.userId,
-			},
-			select: {
-				id: true,
-			},
-		})
-
-		return c.json({ data })
-	})
+	)
 
 export default app

@@ -2,15 +2,15 @@ import { FaGithub } from 'react-icons/fa'
 
 export const Footer = () => {
 	return (
-		<footer className='bg-blue-600 text-white px-4 lg:px-14 py-8 mt-8'>
-			<div className='max-w-screen-2xl mx-auto'>
-				<div className='flex flex-col md:flex-row justify-between items-start mb-6'>
+		<footer className='mt-8 bg-blue-600 px-4 py-8 text-white lg:px-14'>
+			<div className='mx-auto max-w-screen-2xl'>
+				<div className='mb-6 flex flex-col items-start justify-between md:flex-row'>
 					<div>
 						<h3 className='text-xl font-bold'>Next Finance</h3>
-						<p className='text-sm mt-1'>Your trusted financial partner</p>
+						<p className='mt-1 text-sm'>Your trusted financial partner</p>
 					</div>
-					<div className='flex flex-col lg:flex-row items-center space-x-6 mt-4 lg:mt-0'>
-						<nav className='flex flex-col lg:flex-row gap-4'>
+					<div className='mt-4 flex flex-col items-center space-x-6 lg:mt-0 lg:flex-row'>
+						<nav className='flex flex-col gap-4 lg:flex-row'>
 							{/* <a
 									href='https://your-blog-site.com'
 									target='_blank'
@@ -39,7 +39,7 @@ export const Footer = () => {
 								href='https://github.com/GeraltWang/next-finance'
 								target='_blank'
 								rel='noopener noreferrer'
-								className='hover:text-blue-200 transition-colors'
+								className='transition-colors hover:text-blue-200'
 							>
 								<FaGithub size={24} />
 							</a>

@@ -24,7 +24,13 @@ export const LineVariant = ({ data }: Props) => {
 			<LineChart accessibilityLayer data={data}>
 				<CartesianGrid strokeDasharray={'3 3'} />
 				<ChartTooltip content={<CustomTooltip />} />
-				<Line className='drop-shadow-sm' dataKey='income' stroke='var(--color-income)' strokeWidth={2} dot={false} />
+				<Line
+					className='drop-shadow-sm'
+					dataKey='income'
+					stroke='var(--color-income)'
+					strokeWidth={2}
+					dot={false}
+				/>
 				<Line
 					className='drop-shadow-sm'
 					dataKey='expenses'

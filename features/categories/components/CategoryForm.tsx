@@ -5,7 +5,14 @@ import { CategorySchema } from '@/schema/categories'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form'
 
 import { Trash } from 'lucide-react'
 
@@ -60,7 +67,7 @@ export const CategoryForm = ({ id, defaultValues, onSubmit, onDelete, disabled }
 						disabled={disabled}
 						onClick={handleDelete}
 					>
-						<Trash className='size-4 mr-2' />
+						<Trash className='mr-2 size-4' />
 						Delete Category
 					</Button>
 				)}

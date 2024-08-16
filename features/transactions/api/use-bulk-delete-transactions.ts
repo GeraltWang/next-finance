@@ -5,7 +5,9 @@ import { toast } from 'sonner'
 
 type ResponseType = InferResponseType<(typeof client.api.transactions)['bulk-delete']['$post']>
 
-type RequestType = InferRequestType<(typeof client.api.transactions)['bulk-delete']['$post']>['json']
+type RequestType = InferRequestType<
+	(typeof client.api.transactions)['bulk-delete']['$post']
+>['json']
 
 export const useBulkDeleteTransactions = () => {
 	const queryClient = useQueryClient()

@@ -9,7 +9,10 @@ import {
 } from '@/components/ui/dialog'
 import { useState } from 'react'
 
-export const useConfirm = (title: string, message: string): [() => JSX.Element, () => Promise<boolean>] => {
+export const useConfirm = (
+	title: string,
+	message: string
+): [() => JSX.Element, () => Promise<boolean>] => {
 	const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null)
 
 	const confirm = (): Promise<boolean> =>

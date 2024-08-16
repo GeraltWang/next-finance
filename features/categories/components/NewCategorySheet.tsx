@@ -1,4 +1,10 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 import { CategoryForm } from '@/features/categories/components/CategoryForm'
 import { useNewCategory } from '@/features/categories/hooks/use-new-category'
 import { CategorySchema } from '@/schema/categories'

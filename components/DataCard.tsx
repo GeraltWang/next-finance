@@ -44,12 +44,19 @@ interface Props extends BoxVariants, IconVariants {
 	icon: IconType
 }
 
-export const DataCard = ({ header, dateRange, value = 0, percentageChange = 0, variant, icon: Icon }: Props) => {
+export const DataCard = ({
+	header,
+	dateRange,
+	value = 0,
+	percentageChange = 0,
+	variant,
+	icon: Icon,
+}: Props) => {
 	return (
 		<Card>
 			<CardHeader className='flex flex-row items-center justify-between gap-x-4'>
 				<div className='space-y-2'>
-					<CardTitle className='text-2xl line-clamp-1'>{header}</CardTitle>
+					<CardTitle className='line-clamp-1 text-2xl'>{header}</CardTitle>
 					<CardDescription className='line-clamp-1'>{dateRange}</CardDescription>
 				</div>
 				<div className={cn(boxVariant({ variant }))}>
@@ -57,12 +64,19 @@ export const DataCard = ({ header, dateRange, value = 0, percentageChange = 0, v
 				</div>
 			</CardHeader>
 			<CardContent>
-				<h1 className='font-bold text-2xl mb-2 line-clamp-1 break-all'>
-					<CountUp preserveValue start={0} end={value} decimals={2} decimalPlaces={2} formattingFn={formatCurrency} />
+				<h1 className='mb-2 line-clamp-1 break-all text-2xl font-bold'>
+					<CountUp
+						preserveValue
+						start={0}
+						end={value}
+						decimals={2}
+						decimalPlaces={2}
+						formattingFn={formatCurrency}
+					/>
 				</h1>
 				<p
 					className={cn(
-						'text-muted-foreground text-sm line-clamp-1',
+						'line-clamp-1 text-sm text-muted-foreground',
 						percentageChange > 0 && 'text-emerald-500',
 						percentageChange < 0 && 'text-red-500'
 					)}
@@ -76,17 +90,17 @@ export const DataCard = ({ header, dateRange, value = 0, percentageChange = 0, v
 
 export const DataCardLoading = () => {
 	return (
-		<Card className='border-none drop-shadow-sm h-[192px]'>
+		<Card className='h-[192px] border-none drop-shadow-sm'>
 			<CardHeader className='flex flex-row items-center justify-between gap-x-4'>
 				<div className='space-y-2'>
-					<Skeleton className='w-24 h-6' />
-					<Skeleton className='w-20 h-4' />
+					<Skeleton className='h-6 w-24' />
+					<Skeleton className='h-4 w-20' />
 				</div>
 				<Skeleton className='size-12' />
 			</CardHeader>
 			<CardContent>
-				<Skeleton className='shrink-0 w-24 h-10 mb-2' />
-				<Skeleton className='shrink-0 w-40 h-4' />
+				<Skeleton className='mb-2 h-10 w-24 shrink-0' />
+				<Skeleton className='h-4 w-40 shrink-0' />
 			</CardContent>
 		</Card>
 	)
