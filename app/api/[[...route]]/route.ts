@@ -4,6 +4,7 @@ import accounts from './accounts'
 import categories from './categories'
 import transactions from './transactions'
 import summary from './summary'
+import webhook from './webhook'
 
 // export const runtime = 'edge'
 
@@ -14,6 +15,7 @@ const routes = app
 	.route('/categories', categories)
 	.route('/transactions', transactions)
 	.route('/summary', summary)
+	.route('/webhook', webhook)
 
 export const GET = handle(app)
 export const POST = handle(app)
