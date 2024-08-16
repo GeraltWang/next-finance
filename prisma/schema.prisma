@@ -19,8 +19,8 @@ model User {
   clerkId   String  @unique @map("clerk_id")
   email     String  @unique
   username  String  @unique
-  firstName String?
-  lastName  String?
+  firstName String? @map("first_name")
+  lastName  String? @map("last_name")
   photo     String
 }
 
