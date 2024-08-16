@@ -25,8 +25,10 @@ const app = new Hono().post(
 		}
 
 		const header = c.req.valid('header')
+		console.log('🚀 ~ header:', header)
 
 		const body = c.req.json()
+		console.log('🚀 ~ body:', body)
 
 		// Create a new Svix instance with your secret.
 		const wh = new Webhook(WEBHOOK_SECRET)
@@ -35,11 +37,7 @@ const app = new Hono().post(
 
 		// Verify the payload with the headers
 		try {
-			evt = wh.verify(JSON.stringify(body), {
-				'svix-id': header['svix-id'],
-				'svix-timestamp': header['svix-timestamp'],
-				'svix-signature': header['svix-signature'],
-			}) as WebhookEvent
+			evt = wh.verify(JSON.stringify(body), header) as WebhookEvent
 		} catch (err) {
 			console.error('Error verifying webhook:', err)
 			return c.json({ error: 'Error verifying webhook' }, 400)
