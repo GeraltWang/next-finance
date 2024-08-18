@@ -1,5 +1,6 @@
 import { calculatePercentageChange, fillMissingDays } from '@/lib/utils'
 import prisma from '@/prisma/client'
+import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
 import { Prisma } from '@prisma/client'
@@ -20,8 +21,8 @@ const app = new Hono().get(
 	),
 	async c => {
 		const auth = getAuth(c)
-
-		if (!auth?.userId) {
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+		if (!userMeta?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
@@ -74,8 +75,8 @@ const app = new Hono().get(
 			}
 		}
 
-		const current = await fetchFinancialData(auth.userId, startDate, endDate)
-		const last = await fetchFinancialData(auth.userId, lastPeriodStart, lastPeriodEnd)
+		const current = await fetchFinancialData(userMeta.userId, startDate, endDate)
+		const last = await fetchFinancialData(userMeta.userId, lastPeriodStart, lastPeriodEnd)
 
 		const incomeChange = calculatePercentageChange(current.income, last.income)
 		const expensesChange = calculatePercentageChange(current.expenses, last.expenses)
@@ -89,7 +90,7 @@ const app = new Hono().get(
 				INNER JOIN "Category" ON "Transaction".category_id = "Category".id
 				INNER JOIN "Account" ON "Transaction".account_id = "Account".id
 				WHERE
-					"Account".user_id = ${auth.userId}
+					"Account".user_id = ${userMeta.userId}
 					AND "Transaction".date BETWEEN ${startDate}::timestamp AND ${endDate}::timestamp
 					${accountId ? Prisma.sql`AND "Transaction".account_id = ${accountId}` : Prisma.sql``}
 				GROUP BY "Category".name
@@ -118,7 +119,7 @@ const app = new Hono().get(
 			-- INNER JOIN "Category" ON "Transaction".category_id = "Category".id
 			INNER JOIN "Account" ON "Transaction".account_id = "Account".id
 			WHERE
-				"Account".user_id = ${auth.userId}
+				"Account".user_id = ${userMeta.userId}
 				AND "Transaction".date BETWEEN ${startDate}::timestamp AND ${endDate}::timestamp
 				${accountId ? Prisma.sql`AND "Transaction".account_id = ${accountId}` : Prisma.sql``}
 			GROUP BY "Transaction".date

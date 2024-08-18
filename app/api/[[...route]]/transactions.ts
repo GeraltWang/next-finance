@@ -1,10 +1,11 @@
 import prisma from '@/prisma/client'
 import { TransactionSchema } from '@/schema/transactions'
+import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
+import { parse, subDays } from 'date-fns'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { parse, subDays } from 'date-fns'
 
 const app = new Hono()
 	.get(
@@ -20,8 +21,8 @@ const app = new Hono()
 		),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -56,7 +57,7 @@ const app = new Hono()
 				},
 				where: {
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 					date: {
 						gte: startDate,
@@ -75,8 +76,8 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -99,7 +100,7 @@ const app = new Hono()
 				where: {
 					id: values.id,
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 				},
 			})
@@ -113,8 +114,8 @@ const app = new Hono()
 	)
 	.post('/', clerkMiddleware(), zValidator('json', TransactionSchema), async c => {
 		const auth = getAuth(c)
-
-		if (!auth?.userId) {
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+		if (!userMeta?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
@@ -137,8 +138,8 @@ const app = new Hono()
 		zValidator('json', z.array(TransactionSchema)),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -157,8 +158,8 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -170,7 +171,7 @@ const app = new Hono()
 						in: values.ids,
 					},
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 				},
 			})
@@ -185,8 +186,8 @@ const app = new Hono()
 		zValidator('json', TransactionSchema),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -202,7 +203,7 @@ const app = new Hono()
 				where: {
 					id: values.id,
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 				},
 			})
@@ -230,8 +231,8 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -245,7 +246,7 @@ const app = new Hono()
 				where: {
 					id: values.id,
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 				},
 			})
@@ -258,7 +259,7 @@ const app = new Hono()
 				where: {
 					id: values.id,
 					account: {
-						userId: auth.userId,
+						userId: userMeta.userId,
 					},
 				},
 				select: {

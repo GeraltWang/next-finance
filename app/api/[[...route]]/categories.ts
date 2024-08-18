@@ -1,5 +1,6 @@
 import prisma from '@/prisma/client'
 import { CategorySchema } from '@/schema/categories'
+import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
@@ -8,8 +9,8 @@ import { z } from 'zod'
 const app = new Hono()
 	.get('/', clerkMiddleware(), async c => {
 		const auth = getAuth(c)
-
-		if (!auth?.userId) {
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+		if (!userMeta?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
@@ -19,7 +20,7 @@ const app = new Hono()
 				name: true,
 			},
 			where: {
-				userId: auth.userId,
+				userId: userMeta.userId,
 			},
 		})
 		return c.json({ data })
@@ -30,8 +31,8 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -44,7 +45,7 @@ const app = new Hono()
 			const data = await prisma.category.findUnique({
 				where: {
 					id: values.id,
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 				select: {
 					id: true,
@@ -61,8 +62,8 @@ const app = new Hono()
 	)
 	.post('/', clerkMiddleware(), zValidator('json', CategorySchema), async c => {
 		const auth = getAuth(c)
-
-		if (!auth?.userId) {
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+		if (!userMeta?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
 		}
 
@@ -71,7 +72,7 @@ const app = new Hono()
 		const data = await prisma.category.create({
 			data: {
 				...values,
-				userId: auth.userId,
+				userId: userMeta.userId,
 			},
 			select: {
 				id: true,
@@ -87,8 +88,8 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -99,7 +100,7 @@ const app = new Hono()
 					id: {
 						in: values.ids,
 					},
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 			})
 
@@ -113,8 +114,8 @@ const app = new Hono()
 		zValidator('json', CategorySchema),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -129,7 +130,7 @@ const app = new Hono()
 			const existingCategory = await prisma.category.findUnique({
 				where: {
 					id: values.id,
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 			})
 
@@ -140,7 +141,7 @@ const app = new Hono()
 			const data = await prisma.category.update({
 				where: {
 					id: values.id,
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 				data: body,
 				select: {
@@ -158,8 +159,8 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-
-			if (!auth?.userId) {
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
@@ -172,7 +173,7 @@ const app = new Hono()
 			const existingCategory = await prisma.category.findUnique({
 				where: {
 					id: values.id,
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 			})
 
@@ -183,7 +184,7 @@ const app = new Hono()
 			const data = await prisma.category.delete({
 				where: {
 					id: values.id,
-					userId: auth.userId,
+					userId: userMeta.userId,
 				},
 				select: {
 					id: true,
