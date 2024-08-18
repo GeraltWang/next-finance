@@ -25,10 +25,8 @@ const app = new Hono().post(
 		}
 
 		const header = c.req.valid('header')
-		console.log('🚀 ~ header:', header)
 
 		const body = await c.req.json()
-		console.log('🚀 ~ body:', body)
 
 		// Create a new Svix instance with your secret.
 		const wh = new Webhook(WEBHOOK_SECRET)
@@ -47,7 +45,7 @@ const app = new Hono().post(
 		const { id } = evt.data
 		const eventType = evt.type
 
-		console.log(`Webhook with and ID of ${id} and type of ${eventType}`)
+		console.log(`Webhook with an ID of ${id} and type of ${eventType}`)
 		console.log('Webhook body:', JSON.stringify(body))
 
 		if (eventType === 'user.created') {
