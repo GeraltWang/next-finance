@@ -6,29 +6,7 @@ import { NavMenuLink } from '@/components/NavMenuLink'
 import { Sheet, SheetHeader, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
-
-const routes = [
-	{
-		label: 'Overview',
-		href: '/',
-	},
-	{
-		label: 'Transactions',
-		href: '/transactions',
-	},
-	{
-		label: 'Accounts',
-		href: '/accounts',
-	},
-	{
-		label: 'Categories',
-		href: '/categories',
-	},
-	{
-		label: 'Settings',
-		href: '/settings',
-	},
-]
+import { headerLinks } from '@/constants'
 
 export const NavMenu = () => {
 	const pathname = usePathname()
@@ -47,7 +25,7 @@ export const NavMenu = () => {
 	if (isMobile) {
 		return (
 			<Sheet open={isOpen} onOpenChange={setIsOpen}>
-				<SheetTrigger>
+				<SheetTrigger asChild>
 					<Button
 						className='border-none bg-white/10 font-normal text-white transition hover:bg-white/20 hover:text-white focus:bg-white/30 focus-visible:ring-transparent focus-visible:ring-offset-0'
 						variant={'outline'}
@@ -61,7 +39,7 @@ export const NavMenu = () => {
 						<SheetTitle>Menu</SheetTitle>
 					</SheetHeader>
 					<nav className='flex flex-col gap-y-2 pt-6'>
-						{routes.map(route => (
+						{headerLinks.map(route => (
 							<Button
 								className='w-full justify-start'
 								onClick={() => handleClick(route.href)}
@@ -79,7 +57,7 @@ export const NavMenu = () => {
 
 	return (
 		<nav className='hidden overflow-x-auto lg:flex lg:items-center lg:gap-x-2'>
-			{routes.map(route => (
+			{headerLinks.map(route => (
 				<NavMenuLink
 					href={route.href}
 					label={route.label}
