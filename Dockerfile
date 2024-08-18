@@ -12,7 +12,7 @@ RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 
 RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN pnpm i --registry=https://mirrors.cloud.tencent.com/npm/
+RUN pnpm i --frozen-lockfile --registry=https://mirrors.cloud.tencent.com/npm/
 
 RUN pnpx prisma generate
 
