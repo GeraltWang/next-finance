@@ -7,9 +7,16 @@ FROM base AS builder
 # 构建阶段
 WORKDIR /app
 
+# 改变/app目录及其内部文件的所有者
+RUN chown -Rh $user:$user /app
+
+USER $user
+
 COPY . .
 
 RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
+
+RUN npm cache clean --force
 
 RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
