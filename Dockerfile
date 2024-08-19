@@ -1,5 +1,6 @@
 # 使用 Node.js 作为基础镜像
 FROM node:20-alpine AS base
+# FROM anolis-registry.cn-zhangjiakou.cr.aliyuncs.com/openanolis/node:latest AS base
 
 FROM base AS builder
 
@@ -8,29 +9,16 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm config set registry https://registry.npmmirror.com/
+RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 
-RUN npm i pnpm -g --registry=https://registry.npmmirror.com/
+RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN pnpm i --frozen-lockfile --registry=https://registry.npmmirror.com/
+RUN pnpm i --registry=https://mirrors.cloud.tencent.com/npm/
 
 RUN pnpx prisma generate
 
 # 构建项目
 RUN pnpm run build
-
-FROM base AS runner
-
-WORKDIR /app
-
-COPY --from=builder /app/public ./public
-
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-ENV NEXT_TELEMETRY_DISABLED 1
-
-COPY prisma ./prisma/
 
 # 暴露容器 80 端口
 EXPOSE 80
@@ -41,5 +29,5 @@ ENV PORT 80
 ENV HOSTNAME="0.0.0.0"
 
 # 启动应用
-# CMD ["pnpm", "run", "start"]
-CMD ["node", "server.js"]
+CMD ["pnpm", "run", "start"]
+# CMD ["node", "server.js"]
