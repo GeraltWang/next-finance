@@ -20,7 +20,7 @@ RUN npm cache clean --force
 
 RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN pnpm i --registry=https://mirrors.cloud.tencent.com/npm/
+RUN pnpm i --ignore-scripts --registry=https://mirrors.cloud.tencent.com/npm/
 
 RUN pnpx prisma generate
 
