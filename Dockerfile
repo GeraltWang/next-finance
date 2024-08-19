@@ -8,9 +8,9 @@ FROM base AS builder
 WORKDIR /app
 
 # 改变/app目录及其内部文件的所有者
-RUN chown -Rh $user:$user /app
+# RUN chown -Rh $user:$user /app
 
-USER $user
+# USER $user
 
 COPY . .
 
