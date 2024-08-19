@@ -22,6 +22,8 @@ RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
 RUN pnpm i --ignore-scripts --registry=https://mirrors.cloud.tencent.com/npm/
 
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE=true
+
 RUN pnpx prisma generate
 
 # 构建项目
