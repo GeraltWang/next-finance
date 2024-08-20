@@ -42,4 +42,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # 启动应用
 # CMD ["pnpm", "run", "start"]
-CMD ["node", "server.js"]
+CMD node server.js
