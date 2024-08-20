@@ -10,12 +10,14 @@ COPY . .
 
 RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 
-RUN npm i --registry=https://mirrors.cloud.tencent.com/npm/
+RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN npx prisma generate
+RUN pnpm i --frozen-lockfile --registry=https://mirrors.cloud.tencent.com/npm/
+
+RUN pnpx prisma generate
 
 # 构建项目
-RUN npm run build
+RUN pnpm run build
 
 FROM base AS runner
 
