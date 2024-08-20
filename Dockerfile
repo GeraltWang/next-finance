@@ -10,16 +10,12 @@ COPY . .
 
 RUN npm config set registry https://mirrors.cloud.tencent.com/npm/
 
-RUN npm cache clean --force
+RUN npm i --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
-
-RUN pnpm i --frozen-lockfile --registry=https://mirrors.cloud.tencent.com/npm/
-
-RUN pnpx prisma generate
+RUN npx prisma generate
 
 # 构建项目
-RUN pnpm run build
+RUN npm run build
 
 FROM base AS runner
 
@@ -42,4 +38,4 @@ ENV HOSTNAME="0.0.0.0"
 
 # 启动应用
 # CMD ["pnpm", "run", "start"]
-CMD node server.js
+CMD ["node", "server.js"]
