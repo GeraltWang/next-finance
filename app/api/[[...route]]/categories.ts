@@ -22,6 +22,9 @@ const app = new Hono()
 			where: {
 				userId: userMeta.userId,
 			},
+			orderBy: {
+				name: 'asc',
+			},
 		})
 		return c.json({ data })
 	})
