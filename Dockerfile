@@ -14,12 +14,23 @@ RUN npm cache clean --force
 
 RUN npm i pnpm -g --registry=https://mirrors.cloud.tencent.com/npm/
 
-RUN pnpm i --registry=https://mirrors.cloud.tencent.com/npm/
+RUN pnpm i --frozen-lockfile --registry=https://mirrors.cloud.tencent.com/npm/
 
 RUN pnpx prisma generate
 
 # 构建项目
 RUN pnpm run build
+
+FROM base AS runner
+
+WORKDIR /app
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY prisma ./prisma/
+
+ENV NEXT_TELEMETRY_DISABLED 1
 
 # 暴露容器 80 端口
 EXPOSE 80
@@ -30,5 +41,5 @@ ENV PORT 80
 ENV HOSTNAME="0.0.0.0"
 
 # 启动应用
-CMD ["pnpm", "run", "start"]
-# CMD ["node", "server.js"]
+# CMD ["pnpm", "run", "start"]
+CMD ["node", "server.js"]
