@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatDateRange } from '@/lib/utils'
-import { format, subDays } from 'date-fns'
+import dayjs from 'dayjs'
 import { ChevronDown } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import qs from 'query-string'
@@ -20,12 +20,12 @@ export const DateFilter = () => {
 	const from = params.get('from') || ''
 	const to = params.get('to') || ''
 
-	const defaultTo = new Date()
-	const defaultFrom = subDays(defaultTo, 30)
+	const defaultTo = dayjs()
+	const defaultFrom = defaultTo.subtract(30, 'day').startOf('day')
 
 	const paramState = {
-		from: from ? new Date(from) : defaultFrom,
-		to: to ? new Date(to) : defaultTo,
+		from: from ? dayjs(from).toDate() : defaultFrom.toDate(),
+		to: to ? dayjs(to).toDate() : defaultTo.toDate(),
 	}
 
 	const [date, setDate] = useState<DateRange | undefined>(paramState)
@@ -33,8 +33,8 @@ export const DateFilter = () => {
 	const pushToUrl = (dateRange: DateRange | undefined) => {
 		const query = {
 			accountId,
-			from: format(dateRange?.from || defaultFrom, 'yyyy-MM-dd'),
-			to: format(dateRange?.to || defaultTo, 'yyyy-MM-dd'),
+			from: dayjs(dateRange?.from || defaultFrom).format('YYYY-MM-DD'),
+			to: dayjs(dateRange?.to || defaultTo).format('YYYY-MM-DD'),
 		}
 
 		const url = qs.stringifyUrl(

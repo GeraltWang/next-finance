@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { formatCurrency } from '@/lib/utils'
 import { Separator } from '@/components/ui/separator'
 
@@ -13,7 +13,7 @@ export const CustomTooltip = ({ active, payload }: any) => {
 	return (
 		<div className='overflow-hidden rounded-sm border bg-white shadow-sm'>
 			<div className='bg-muted p-2 px-3 text-sm text-muted-foreground'>
-				{format(date, 'MMM dd, yyyy')}
+				{dayjs(date).format('MMM DD, YYYY')}
 			</div>
 			<Separator />
 			<div className='space-y-1 p-2 px-3'>

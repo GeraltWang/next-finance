@@ -1,5 +1,5 @@
 import { type ClassValue, clsx } from 'clsx'
-import { eachDayOfInterval, format, isSameDay, subDays } from 'date-fns'
+import dayjs from 'dayjs'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
@@ -81,13 +81,16 @@ export function fillMissingDays(
 		return []
 	}
 
-	const allDays = eachDayOfInterval({
-		start: startDate,
-		end: endDate,
-	})
+	const allDays = []
+	let currentDay = dayjs(startDate)
+
+	while (currentDay.isBefore(dayjs(endDate)) || currentDay.isSame(dayjs(endDate))) {
+		allDays.push(currentDay.toDate())
+		currentDay = currentDay.add(1, 'day')
+	}
 
 	const transactionsByDay = allDays.map(day => {
-		const found = activeDays.find(activeDay => isSameDay(activeDay.date, day))
+		const found = activeDays.find(activeDay => dayjs(activeDay.date).isSame(day, 'day'))
 
 		if (found) {
 			return found
@@ -108,17 +111,34 @@ type Period = {
 	to?: Date | string
 }
 
+// export function formatDateRange(period: Period) {
+// 	const defaultTo = new Date()
+// 	const defaultFrom = subDays(defaultTo, 30)
+
+// 	if (!period?.from) {
+// 		return `${format(defaultFrom, 'LLL dd')} - ${format(defaultTo, 'LLL dd, y')}`
+// 	}
+
+// 	if (period.to) {
+// 		return `${format(period.from, 'LLL dd')} - ${format(period.to, 'LLL dd, y')}`
+// 	}
+
+// 	return `${format(period.from, 'LLL dd, y')}`
+// }
+
 export function formatDateRange(period: Period) {
-	const defaultTo = new Date()
-	const defaultFrom = subDays(defaultTo, 30)
+	const defaultTo = dayjs()
+	const defaultFrom = defaultTo.subtract(30, 'day')
 
 	if (!period?.from) {
-		return `${format(defaultFrom, 'LLL dd')} - ${format(defaultTo, 'LLL dd, y')}`
+		return `${defaultFrom.format('MMM DD')} - ${defaultTo.format('MMM DD, YYYY')}`
 	}
 
+	const from = dayjs(period.from)
 	if (period.to) {
-		return `${format(period.from, 'LLL dd')} - ${format(period.to, 'LLL dd, y')}`
+		const to = dayjs(period.to)
+		return `${from.format('MMM DD')} - ${to.format('MMM DD, YYYY')}`
 	}
 
-	return `${format(period.from, 'LLL dd, y')}`
+	return `${from.format('MMM DD, YYYY')}`
 }

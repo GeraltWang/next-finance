@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ImportTable } from './ImportTable'
 import { convertAmountToMiliunits } from '@/lib/utils'
-import { format, parse } from 'date-fns'
+import dayjs from 'dayjs'
 
 type Props = {
 	data: string[][]
@@ -12,9 +12,11 @@ type Props = {
 }
 
 // csv 导入的日期格式
-const acceptDateFormat = 'MMMM d, yyyy h:mm a'
+// const acceptDateFormat = 'MMMM d, yyyy h:mm a'
+// const acceptDateFormat = 'YYYY/MM/DD HH:mm'
 // 数据库存储的日期格式
-const outputDateFormat = 'yyyy-MM-dd'
+// const outputDateFormat = 'yyyy-MM-dd'
+const outputDateFormat = 'YYYY-MM-DD HH:mm'
 // 必填字段 金额 时间 收款人 备注
 const requiredFields = ['amount', 'payee', 'date', 'notes']
 interface SelectedColumnsState {
@@ -89,7 +91,8 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
 			return {
 				...item,
 				amount: convertAmountToMiliunits(parseFloat(item.amount)),
-				date: format(parse(item.date, acceptDateFormat, new Date()), outputDateFormat),
+				// date: format(parse(item.date, acceptDateFormat, new Date()), outputDateFormat),
+				date: dayjs(item.date).format(outputDateFormat),
 			}
 		})
 		console.log('🚀 ~ formattedData ~ formattedData:', formattedData)

@@ -1,7 +1,7 @@
 import { XAxis, LineChart, Line, CartesianGrid } from 'recharts'
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import { CustomTooltip } from '@/components/CustomTooltip'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 
 const chartConfig = {
 	income: {
@@ -43,7 +43,7 @@ export const LineVariant = ({ data }: Props) => {
 					tickLine={false}
 					dataKey={'date'}
 					tickMargin={16}
-					tickFormatter={value => format(value, 'dd MMM')}
+					tickFormatter={value => dayjs(value).format('DD MMM')}
 					style={{ fontSize: '12px' }}
 				/>
 			</LineChart>

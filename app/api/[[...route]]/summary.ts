@@ -4,7 +4,7 @@ import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
 import { Prisma } from '@prisma/client'
-import { differenceInDays, parse, subDays } from 'date-fns'
+import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -28,15 +28,15 @@ const app = new Hono().get(
 
 		const { from, to, accountId } = c.req.valid('query')
 
-		const defaultTo = new Date()
-		const defaultFrom = subDays(defaultTo, 30)
+		const defaultTo = dayjs().endOf('day')
+		const defaultFrom = defaultTo.subtract(30, 'day').startOf('day').toDate()
 
-		const startDate = from ? parse(from, 'yyyy-MM-dd', new Date()) : defaultFrom
-		const endDate = to ? parse(to, 'yyyy-MM-dd', new Date()) : defaultTo
+		const startDate = from ? dayjs(from, 'YYYY-MM-DD').startOf('day').toDate() : defaultFrom
+		const endDate = to ? dayjs(to, 'YYYY-MM-DD').endOf('day').toDate() : defaultTo.toDate()
 
-		const periodLength = differenceInDays(endDate, startDate) + 1
-		const lastPeriodStart = subDays(startDate, periodLength)
-		const lastPeriodEnd = subDays(endDate, periodLength)
+		const periodLength = dayjs(endDate).diff(startDate, 'day') + 1
+		const lastPeriodStart = dayjs(startDate).subtract(periodLength, 'day').toDate()
+		const lastPeriodEnd = dayjs(endDate).subtract(periodLength, 'day').toDate()
 
 		async function fetchFinancialData(userId: string, startDate: Date, endDate: Date) {
 			const transactions = await prisma.transaction.findMany({

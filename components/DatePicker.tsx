@@ -1,5 +1,4 @@
-import React from 'react'
-import { format } from 'date-fns'
+import dayjs from 'dayjs'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import { SelectSingleEventHandler } from 'react-day-picker'
 
@@ -28,7 +27,7 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
 					disabled={disabled}
 				>
 					<CalendarIcon className='mr-2 size-4' />
-					{value ? format(value, 'PPP') : <span>Pick a date</span>}
+					{value ? dayjs(value).format('YYYY-MM-DD') : <span>Pick a date</span>}
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent>
