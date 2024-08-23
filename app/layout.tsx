@@ -1,5 +1,6 @@
 import { Toaster } from '@/components/ui/sonner'
 import { QueryProvider } from '@/providers/query-provider'
+import { Analytics } from '@vercel/analytics/react'
 import { zhCN } from '@clerk/localizations'
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from 'next'
@@ -28,6 +29,7 @@ export default function RootLayout({
 						<Toaster />
 						{children}
 					</QueryProvider>
+					<Analytics />
 				</body>
 			</html>
 		</ClerkProvider>
