@@ -1,5 +1,5 @@
 import prisma from '@/prisma/client'
-import { TransactionSchema } from '@/schema/transactions'
+import { TransactionSchema, TransactionUpdateSchema } from '@/schema/transactions'
 import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
@@ -66,6 +66,9 @@ const app = new Hono()
 						lte: endDate,
 					},
 					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
+				},
+				orderBy: {
+					date: 'asc',
 				},
 			})
 
@@ -225,6 +228,95 @@ const app = new Hono()
 			})
 
 			return c.json({ data })
+		}
+	)
+	.post(
+		'/bulk-edit',
+		clerkMiddleware(),
+		zValidator('json', z.object({ ids: z.array(z.string()), data: TransactionUpdateSchema })),
+		async c => {
+			const auth = getAuth(c)
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
+
+			const values = c.req.valid('json')
+
+			const existingData = await prisma.transaction.findMany({
+				where: {
+					id: {
+						in: values.ids,
+					},
+					account: {
+						userId: userMeta.userId,
+					},
+				},
+			})
+
+			const existingIds = existingData.map(data => data.id)
+
+			await prisma.transaction.updateMany({
+				where: {
+					id: {
+						in: existingIds,
+					},
+					account: {
+						userId: userMeta.userId,
+					},
+				},
+				data: values.data,
+			})
+
+			return c.json({ data: existingIds })
+		}
+	)
+	.post(
+		'/bulk-mark-as-expense',
+		clerkMiddleware(),
+		zValidator('json', z.object({ ids: z.array(z.string()) })),
+		async c => {
+			const auth = getAuth(c)
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
+
+			const values = c.req.valid('json')
+
+			const existingData = await prisma.transaction.findMany({
+				where: {
+					id: {
+						in: values.ids,
+					},
+					account: {
+						userId: userMeta.userId,
+					},
+					amount: {
+						gt: 0,
+					},
+				},
+			})
+
+			const positiveIds = existingData.map(data => data.id)
+
+			await prisma.transaction.updateMany({
+				where: {
+					id: {
+						in: positiveIds,
+					},
+					account: {
+						userId: userMeta.userId,
+					},
+				},
+				data: {
+					amount: {
+						multiply: -1,
+					},
+				},
+			})
+
+			return c.json({ data: positiveIds })
 		}
 	)
 	.delete(

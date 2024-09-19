@@ -16,6 +16,12 @@ import { useSelectAccount } from '@/features/accounts/hooks/use-select-account'
 import { toast } from 'sonner'
 import { useBulkCreateTransactions } from '@/features/transactions/api/use-bulk-create-transactions'
 import { z } from 'zod'
+import { Table } from '@tanstack/react-table'
+import { useConfirm } from '@/hooks/use-confirm'
+import { useBulkMarkAsExpense } from '@/features/transactions/api/use-bulk-mark-as-expense'
+import type { ResponseType } from './columns'
+import { convertAmountToMiliunits } from '@/lib/utils'
+import { useOpenEditCategory } from '@/features/transactions/hooks/use-open-edit-category'
 
 enum VARIANTS {
 	LIST = 'LIST',
@@ -76,6 +82,52 @@ const TransactionsPage = () => {
 
 	const isDisabled = isLoading || deleteTransactions.isPending
 
+	const [ConfirmMarkDialog, confirmMark] = useConfirm(
+		'Are you sure?',
+		'This action cannot be undone.'
+	)
+
+	const editTransactions = useBulkMarkAsExpense()
+
+	const { onOpen: onOpenEditTransactionCategory } = useOpenEditCategory()
+
+	const renderMarkAsExpenseButton = ({ table }: { table: Table<ResponseType> }) => {
+		return (
+			<>
+				<Button
+					className='text-xs font-normal'
+					size={'sm'}
+					variant={'outline'}
+					disabled={isDisabled}
+					onClick={async () => {
+						const ids = table.getFilteredSelectedRowModel().rows.map(row => row.original.id)
+						onOpenEditTransactionCategory(ids)
+					}}
+				>
+					Edit category ({table.getFilteredSelectedRowModel().rows.length})
+				</Button>
+				<Button
+					className='text-xs font-normal'
+					size={'sm'}
+					variant={'outline'}
+					disabled={isDisabled}
+					onClick={async () => {
+						const ok = await confirmMark()
+						if (ok) {
+							const payload = {
+								ids: table.getFilteredSelectedRowModel().rows.map(r => r.original.id),
+							}
+							editTransactions.mutate(payload)
+							table.resetRowSelection()
+						}
+					}}
+				>
+					Mark as expense ({table.getFilteredSelectedRowModel().rows.length})
+				</Button>
+			</>
+		)
+	}
+
 	if (isLoading) {
 		return (
 			<section className='mx-auto -mt-24 w-full max-w-screen-2xl pb-10'>
@@ -104,6 +156,7 @@ const TransactionsPage = () => {
 
 	return (
 		<section className='mx-auto -mt-24 w-full max-w-screen-2xl pb-10'>
+			<ConfirmMarkDialog />
 			<Card className='border-none drop-shadow-sm'>
 				<CardHeader className='gap-y-2 lg:flex-row lg:items-center lg:justify-between'>
 					<CardTitle className='line-clamp-1 text-xl'>Transactions</CardTitle>
@@ -125,6 +178,7 @@ const TransactionsPage = () => {
 							const ids = row.map(r => r.original.id)
 							deleteTransactions.mutate({ ids })
 						}}
+						bulkButton={renderMarkAsExpenseButton}
 					/>
 				</CardContent>
 			</Card>

@@ -6,6 +6,7 @@ import { NewCategorySheet } from '@/features/categories/components/NewCategorySh
 import { EditCategorySheet } from '@/features/categories/components/EditCategorySheet'
 import { NewTransactionSheet } from '@/features/transactions/components/NewTransactionSheet'
 import { EditTransactionSheet } from '@/features/transactions/components/EditTransactionSheet'
+import { EditTransactionCategorySheet as BulkEditTransactionCategorySheet } from '@/features/transactions/components/EditTransactionCategorySheet'
 
 export const SheetProvider = () => {
 	const isMounted = useMountedState()
@@ -22,6 +23,7 @@ export const SheetProvider = () => {
 			<EditCategorySheet />
 			<NewTransactionSheet />
 			<EditTransactionSheet />
+			<BulkEditTransactionCategorySheet />
 		</>
 	)
 }
