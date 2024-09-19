@@ -1,6 +1,7 @@
 import { Toaster } from '@/components/ui/sonner'
 import { QueryProvider } from '@/providers/query-provider'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { zhCN } from '@clerk/localizations'
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from 'next'
@@ -30,6 +31,7 @@ export default function RootLayout({
 						{children}
 					</QueryProvider>
 					<Analytics />
+					<SpeedInsights />
 				</body>
 			</html>
 		</ClerkProvider>
