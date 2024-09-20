@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { formatDateRange } from '@/lib/utils'
-import dayjs from 'dayjs'
+import dayjs from '@/lib/dayjs'
 import { ChevronDown } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import qs from 'query-string'
@@ -20,12 +20,12 @@ export const DateFilter = () => {
 	const from = params.get('from') || ''
 	const to = params.get('to') || ''
 
-	const defaultTo = dayjs()
-	const defaultFrom = defaultTo.subtract(30, 'day').startOf('day')
+	const defaultTo = dayjs().utc()
+	const defaultFrom = defaultTo.utc().subtract(30, 'day').startOf('day')
 
 	const paramState = {
-		from: from ? dayjs(from).toDate() : defaultFrom.toDate(),
-		to: to ? dayjs(to).toDate() : defaultTo.toDate(),
+		from: from ? dayjs(from).utc().toDate() : defaultFrom.toDate(),
+		to: to ? dayjs(to).utc().toDate() : defaultTo.toDate(),
 	}
 
 	const [date, setDate] = useState<DateRange | undefined>(paramState)

@@ -8,7 +8,7 @@ import { ArrowUpDown } from 'lucide-react'
 
 import { ColumnDef } from '@tanstack/react-table'
 import { Actions } from './Actions'
-import dayjs from 'dayjs'
+import dayjs from '@/lib/dayjs'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { AccountColumn } from './AccountColumn'
@@ -53,7 +53,7 @@ export const columns: ColumnDef<ResponseType>[] = [
 		},
 		cell: ({ row }) => {
 			const date = row.getValue('date') as Date
-			return <span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
+			return <span>{dayjs(date).utc().format('YYYY-MM-DD HH:mm')}</span>
 		},
 	},
 	{

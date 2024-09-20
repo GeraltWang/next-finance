@@ -28,13 +28,11 @@ const app = new Hono()
 
 			const { from, to, accountId } = c.req.valid('query')
 
-			const defaultTo = dayjs()
-			const defaultFrom = defaultTo.subtract(30, 'day').startOf('day')
+			const defaultTo = dayjs().utc().endOf('day').toDate()
+			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
 
-			const startDate = from
-				? dayjs(from, 'YYYY-MM-DD').startOf('day').toDate()
-				: defaultFrom.toDate()
-			const endDate = to ? dayjs(to, 'YYYY-MM-DD').endOf('day').toDate() : defaultTo.toDate()
+			const startDate = from ? dayjs(from, 'YYYY-MM-DD').utc().startOf('day').toDate() : defaultFrom
+			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc().endOf('day').toDate() : defaultTo
 
 			const data = await prisma.transaction.findMany({
 				select: {
