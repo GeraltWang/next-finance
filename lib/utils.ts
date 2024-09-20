@@ -24,10 +24,10 @@ export function convertAmountFromMiliunits(amount: number) {
 	return amount / 1000
 }
 
-export function formatCurrency(value: number) {
-	return new Intl.NumberFormat('en-US', {
+export function formatCurrency(value: number, lang: string = 'zh-CN') {
+	return new Intl.NumberFormat(lang, {
 		style: 'currency',
-		currency: 'USD',
+		currency: 'CNY',
 		maximumFractionDigits: 2,
 	}).format(value)
 }
@@ -49,12 +49,14 @@ export function calculatePercentageChange(current: number, previous: number) {
 export function formatPercentage(
 	value: number,
 	options: {
+		lang?: string
 		addPrefix?: boolean
 	} = {
+		lang: 'zh-CN',
 		addPrefix: false,
 	}
 ) {
-	const formatted = new Intl.NumberFormat('en-US', {
+	const formatted = new Intl.NumberFormat(options.lang, {
 		style: 'percent',
 	}).format(value / 100)
 
@@ -73,7 +75,7 @@ export function formatPercentage(
  * @returns
  */
 export function fillMissingDays(
-	activeDays: { date: Date; income: number; expenses: number }[],
+	activeDays: { date: string | Date; income: number; expenses: number }[],
 	startDate: Date,
 	endDate: Date
 ) {
