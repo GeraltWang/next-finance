@@ -160,7 +160,6 @@ const app = new Hono().get(
 				date: 'asc',
 			},
 		})
-		console.log('🚀 ~ activeDays:', activeDays)
 
 		function groupAndSumByDate(data: { amount: number; date: Date }[]) {
 			const groupedData: { [key: string]: number } = {}
