@@ -1,7 +1,10 @@
 'use client'
+import { toast } from 'sonner'
 
 // Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
-import { isServer, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { isServer, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { HTTPException } from 'hono/http-exception'
+import { PropsWithChildren } from 'react'
 
 function makeQueryClient() {
 	return new QueryClient({
@@ -12,6 +15,20 @@ function makeQueryClient() {
 				staleTime: 60 * 1000,
 			},
 		},
+		queryCache: new QueryCache({
+			onError: err => {
+				let errorMessage: string
+				if (err instanceof HTTPException) {
+					errorMessage = err.message
+				} else if (err instanceof Error) {
+					errorMessage = err.message
+				} else {
+					errorMessage = 'An unknown error occurred.'
+				}
+				// toast notify user
+				toast.error(errorMessage)
+			},
+		}),
 	})
 }
 
@@ -31,11 +48,7 @@ function getQueryClient() {
 	}
 }
 
-type Props = {
-	children: React.ReactNode
-}
-
-export function QueryProvider({ children }: Props) {
+export function QueryProvider({ children }: PropsWithChildren) {
 	// NOTE: Avoid useState when initializing the query client if you don't
 	//       have a suspense boundary between this and the code that may
 	//       suspend because React will throw away the client on the initial

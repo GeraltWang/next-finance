@@ -27,7 +27,7 @@ export default function RootLayout({
 				<body className={inter.className}>
 					<NextTopLoader color='#FF7A00' />
 					<QueryProvider>
-						<Toaster />
+						<Toaster richColors theme={'system'} />
 						{children}
 					</QueryProvider>
 					<Analytics />
