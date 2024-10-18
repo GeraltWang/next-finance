@@ -17,7 +17,7 @@ import expose from './expose'
 
 import prisma from '@/prisma/client'
 
-export const runtime = 'edge'
+// export const runtime = 'edge'
 
 type Variables = JwtVariables<{ id: string, email: string }>
 
