@@ -34,7 +34,7 @@ import { Trash } from 'lucide-react'
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
 	data: TData[]
-	filterKey: string
+	filterKey?: string
 	disabled?: boolean
 	bulkButton?: ({ table }: { table: TableType<TData> }) => JSX.Element
 	onDelete?: (rows: Row<TData>[]) => void
@@ -77,12 +77,14 @@ export function DataTable<TData, TValue>({
 		<div>
 			<ConfirmDialog />
 			<div className='flex flex-col justify-between gap-2 py-4 md:flex-row'>
-				<Input
-					placeholder={`Filter ${filterKey}...`}
-					value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ''}
-					onChange={event => table.getColumn(filterKey)?.setFilterValue(event.target.value)}
-					className='md:max-w-sm'
-				/>
+				{filterKey && (
+					<Input
+						placeholder={`Filter ${filterKey}...`}
+						value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ''}
+						onChange={event => table.getColumn(filterKey)?.setFilterValue(event.target.value)}
+						className='md:max-w-sm'
+					/>
+				)}
 				<div className='flex w-full flex-wrap items-center justify-end gap-2'>
 					{table.getFilteredSelectedRowModel().rows.length > 0 && (
 						<>

@@ -15,8 +15,15 @@ export const headerLinks = [
 		label: 'Categories',
 		href: '/categories',
 	},
-	// {
-	// 	label: 'Settings',
-	// 	href: '/settings',
-	// },
+	{
+		label: 'Settings',
+		href: '/settings',
+	},
+]
+
+export const settingsLinks = [
+	{
+		label: 'Personal access token',
+		href: '/settings',
+	}
 ]

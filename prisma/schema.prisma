@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -49,4 +50,14 @@ model Transaction {
   account    Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   categoryId String?   @map("category_id")
   category   Category? @relation(fields: [categoryId], references: [id])
+}
+
+model PersonalAccessToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  email     String
+  name      String
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

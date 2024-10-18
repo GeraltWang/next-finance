@@ -12,7 +12,7 @@ import { useState } from 'react'
 export const useConfirm = (
 	title: string,
 	message: string
-): [() => JSX.Element, () => Promise<boolean>] => {
+): [({ children }: { children?: React.ReactNode }) => JSX.Element, () => Promise<boolean>] => {
 	const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null)
 
 	const confirm = (): Promise<boolean> =>
@@ -34,14 +34,15 @@ export const useConfirm = (
 		handleClose()
 	}
 
-	const ConfirmationDialog = () => {
+	const ConfirmationDialog = ({ children }: { children?: React.ReactNode }) => {
 		return (
-			<Dialog open={promise !== null}>
+			<Dialog open={promise !== null} onOpenChange={handleClose}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>{title}</DialogTitle>
 						<DialogDescription>{message}</DialogDescription>
 					</DialogHeader>
+					{children}
 					<DialogFooter className='pt-2'>
 						<Button variant={'outline'} onClick={handleCancel}>
 							Cancel
