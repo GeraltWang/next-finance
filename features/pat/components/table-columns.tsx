@@ -62,6 +62,7 @@ export const TableColumns: ColumnDef<ResponseType>[] = [
 	},
 	{
 		accessorKey: 'created at',
+		id: 'createdAt',
 		cell: ({ row }) => {
 			const date = row.getValue('createdAt') as Date
 			return <span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
