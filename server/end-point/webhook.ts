@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import type { Bindings, Variables } from '@/server/env'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { WebhookEvent } from '@clerk/nextjs/server'
@@ -6,7 +7,7 @@ import { clerkClient } from '@clerk/nextjs/server'
 import { Webhook } from 'svix'
 import prisma from '@/lib/prisma'
 
-const app = new Hono().post(
+const app = new Hono<{ Bindings: Bindings, Variables: Variables }>().post(
 	'/clerk',
 	zValidator(
 		'header',
@@ -18,7 +19,8 @@ const app = new Hono().post(
 	),
 	async c => {
 		// You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
-		const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
+		// const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
+		const WEBHOOK_SECRET = c.env.WEBHOOK_SECRET
 
 		if (!WEBHOOK_SECRET) {
 			throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')

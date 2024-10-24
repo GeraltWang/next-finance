@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import type { Bindings, Variables } from '@/server/env'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { sign as signJwt } from 'hono/jwt'
 import { UserMeta } from '@/types'
@@ -7,9 +8,7 @@ import { zValidator } from '@hono/zod-validator'
 import { PatSchema } from '@/features/pat/schemas/index'
 import { z } from 'zod'
 
-const JWT_SECRET = process.env.JWT_SECRET!
-
-const app = new Hono()
+const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 	.get('/', clerkMiddleware(), async c => {
 		const auth = getAuth(c)
 		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
@@ -59,6 +58,8 @@ const app = new Hono()
 		}
 
 		const payload = existingUser
+
+		const JWT_SECRET = c.env.JWT_SECRET
 
 		const token = await signJwt(payload, JWT_SECRET)
 
