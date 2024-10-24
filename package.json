@@ -17,7 +17,7 @@
 		"@hono/clerk-auth": "^2.0.0",
 		"@hono/zod-validator": "^0.4.1",
 		"@hookform/resolvers": "^3.9.0",
-		"@neondatabase/serverless": "^0.10.1",
+		"@neondatabase/serverless": "0.10.1",
 		"@prisma/adapter-neon": "^5.21.1",
 		"@prisma/client": "^5.21.1",
 		"@radix-ui/react-checkbox": "^1.1.1",
