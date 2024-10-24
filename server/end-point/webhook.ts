@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { Webhook } from 'svix'
-import prisma from '@/prisma/client'
+import prisma from '@/lib/prisma'
 
 const app = new Hono().post(
 	'/clerk',

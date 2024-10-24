@@ -7,16 +7,16 @@ import { InferResponseType } from 'hono'
 import { ArrowUpDown } from 'lucide-react'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { Actions } from './Actions'
+import { TableActions } from '@/features/transactions/components/table-actions'
 import dayjs from '@/lib/dayjs'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import { AccountColumn } from './AccountColumn'
-import { CategoryColumn } from './CategoryColumn'
+import { AccountColumn } from '@/features/transactions/components/account-column'
+import { CategoryColumn } from '@/features/transactions/components/category-column'
 
 export type ResponseType = InferResponseType<typeof client.api.transactions.$get, 200>['data'][0]
 
-export const columns: ColumnDef<ResponseType>[] = [
+export const TableColumns: ColumnDef<ResponseType>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -140,7 +140,7 @@ export const columns: ColumnDef<ResponseType>[] = [
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			return <Actions id={row.original.id} />
+			return <TableActions id={row.original.id} />
 		},
 	},
 ]

@@ -4,16 +4,9 @@ import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 
-import { PatSchema } from '@/schema/pats'
+import { PatSchema } from '@/features/pat/schemas/index'
 import { useNewPat } from '@/features/pat/hooks/use-new-pat'
 
 type FormValues = z.infer<typeof PatSchema>

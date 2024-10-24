@@ -7,7 +7,7 @@ import { useBulkDeleteAccounts } from '@/features/accounts/api/use-bulk-delete-a
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useNewAccount } from '@/features/accounts/hooks/use-new-account'
 import { Loader2, Plus } from 'lucide-react'
-import { columns } from './columns'
+import { TableColumns } from '@/features/accounts/components/table-columns'
 
 const AccountsPage = () => {
 	const { onOpen } = useNewAccount()
@@ -49,7 +49,7 @@ const AccountsPage = () => {
 				</CardHeader>
 				<CardContent>
 					<DataTable
-						columns={columns}
+						columns={TableColumns}
 						data={accounts}
 						filterKey='name'
 						disabled={isDisabled}

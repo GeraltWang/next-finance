@@ -7,11 +7,11 @@ import { useBulkDeleteTransactions } from '@/features/transactions/api/use-bulk-
 import { useGetTransactions } from '@/features/transactions/api/use-get-transactions'
 import { useNewTransaction } from '@/features/transactions/hooks/use-new-transaction'
 import { Loader2, Plus } from 'lucide-react'
-import { columns } from './columns'
+import { TableColumns } from '@/features/transactions/components/table-columns'
 import { useState } from 'react'
-import { UploadButton } from './UploadButton'
-import { ImportCard } from './ImportCard'
-import { TransactionSchema } from '@/schema/transactions'
+import { UploadButton } from '@/features/transactions/components/upload-button'
+import { ImportCard } from '@/features/transactions/components/import-card'
+import { TransactionSchema } from '@/features/transactions/schemas/index'
 import { useSelectAccount } from '@/features/accounts/hooks/use-select-account'
 import { toast } from 'sonner'
 import { useBulkCreateTransactions } from '@/features/transactions/api/use-bulk-create-transactions'
@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { Table } from '@tanstack/react-table'
 import { useConfirm } from '@/hooks/use-confirm'
 import { useBulkMarkAsExpense } from '@/features/transactions/api/use-bulk-mark-as-expense'
-import type { ResponseType } from './columns'
+import type { ResponseType } from '@/features/transactions/components/table-columns'
 import { convertAmountToMiliunits } from '@/lib/utils'
 import { useOpenEditCategory } from '@/features/transactions/hooks/use-open-edit-category'
 
@@ -170,7 +170,7 @@ const TransactionsPage = () => {
 				</CardHeader>
 				<CardContent>
 					<DataTable
-						columns={columns}
+						columns={TableColumns}
 						data={transactions}
 						filterKey='payee'
 						disabled={isDisabled}

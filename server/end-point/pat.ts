@@ -2,9 +2,9 @@ import { Hono } from 'hono'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { sign as signJwt } from 'hono/jwt'
 import { UserMeta } from '@/types'
-import prisma from '@/prisma/client'
+import prisma from '@/lib/prisma'
 import { zValidator } from '@hono/zod-validator'
-import { PatSchema } from '@/schema/pats'
+import { PatSchema } from '@/features/pat/schemas/index'
 import { z } from 'zod'
 
 const JWT_SECRET = process.env.JWT_SECRET!

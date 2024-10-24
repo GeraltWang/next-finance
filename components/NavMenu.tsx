@@ -6,7 +6,7 @@ import { NavMenuLink } from '@/components/NavMenuLink'
 import { Sheet, SheetHeader, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'
-import { headerLinks } from '@/constants'
+import { headerLinks } from '@/data'
 
 export const NavMenu = () => {
 	const pathname = usePathname()

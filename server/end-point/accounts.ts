@@ -1,5 +1,5 @@
-import prisma from '@/prisma/client'
-import { AccountSchema } from '@/schema/accounts'
+import prisma from '@/lib/prisma'
+import { AccountSchema } from '@/features/accounts/schemas/index'
 import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'

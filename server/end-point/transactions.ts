@@ -1,5 +1,5 @@
-import prisma from '@/prisma/client'
-import { TransactionSchema, TransactionUpdateSchema } from '@/schema/transactions'
+import prisma from '@/lib/prisma'
+import { TransactionSchema, TransactionUpdateSchema } from '@/features/transactions/schemas/index'
 import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'

@@ -7,14 +7,11 @@ import { InferResponseType } from 'hono'
 import { ArrowUpDown } from 'lucide-react'
 
 import { ColumnDef } from '@tanstack/react-table'
-import dayjs from '@/lib/dayjs'
+import { TableActions } from '@/features/categories/components/table-actions'
 
-import { PatToken } from './_components/pat-token'
-import { Actions } from './actions'
+export type ResponseType = InferResponseType<typeof client.api.accounts.$get, 200>['data'][0]
 
-export type ResponseType = InferResponseType<typeof client.api.pat.$get, 200>['data'][0]
-
-export const columns: ColumnDef<ResponseType>[] = [
+export const TableColumns: ColumnDef<ResponseType>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -44,32 +41,16 @@ export const columns: ColumnDef<ResponseType>[] = [
 					variant='ghost'
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					name
+					Name
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
 			)
 		},
 	},
 	{
-		accessorKey: 'token',
-		id: 'token',
-		cell: ({ row }) => {
-			const token = row.getValue('token') as string
-
-			return <PatToken value={token} />
-		},
-	},
-	{
-		accessorKey: 'created at',
-		cell: ({ row }) => {
-			const date = row.getValue('createdAt') as Date
-			return <span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
-		},
-	},
-	{
 		id: 'actions',
 		cell: ({ row }) => {
-			return <Actions id={row.original.id} />
+			return <TableActions id={row.original.id} />
 		},
 	},
 ]

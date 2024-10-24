@@ -15,7 +15,7 @@ type Props = {
 	id: string
 }
 
-export const Actions = ({ id }: Props) => {
+export const TableActions = ({ id }: Props) => {
 	const deleteMutation = useDeletePat(id)
 
 	const [ConfirmDialog, confirm] = useConfirm(

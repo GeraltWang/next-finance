@@ -11,7 +11,7 @@ import { useGetAccount } from '@/features/accounts/api/use-get-account'
 import { AccountForm } from '@/features/accounts/components/AccountForm'
 import { useOpenAccount } from '@/features/accounts/hooks/use-open-account'
 import { useConfirm } from '@/hooks/use-confirm'
-import { AccountSchema } from '@/schema/accounts'
+import { AccountSchema } from '@/features/accounts/schemas/index'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 

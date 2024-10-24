@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { AccountSchema } from '@/schema/accounts'
+import { AccountSchema } from '@/features/accounts/schemas/index'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
-import { SettingsNavMenu } from './_components/settings-nav-menu'
+import { SettingsNavMenu } from '@/components/settings-nav-menu'
 
 const SettingsSubLayout = ({
 	children,

@@ -1,9 +1,8 @@
 'use client'
-import React from 'react'
-import { Button, buttonVariants } from '@/components/ui/button'
-import { settingsLinks } from '@/constants'
-import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/button'
+import { settingsLinks } from '@/data'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export const SettingsNavMenu = () => {

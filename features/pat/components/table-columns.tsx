@@ -2,16 +2,20 @@
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+
 import { client } from '@/lib/hono'
+import dayjs from '@/lib/dayjs'
+
 import { InferResponseType } from 'hono'
 import { ArrowUpDown } from 'lucide-react'
-
 import { ColumnDef } from '@tanstack/react-table'
-import { Actions } from './Actions'
 
-export type ResponseType = InferResponseType<typeof client.api.accounts.$get, 200>['data'][0]
+import { PatToken } from '@/features/pat/components/pat-token'
+import { TableActions } from '@/features/pat/components/table-actions'
 
-export const columns: ColumnDef<ResponseType>[] = [
+export type ResponseType = InferResponseType<typeof client.api.pat.$get, 200>['data'][0]
+
+export const TableColumns: ColumnDef<ResponseType>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
@@ -41,16 +45,32 @@ export const columns: ColumnDef<ResponseType>[] = [
 					variant='ghost'
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Name
+					name
 					<ArrowUpDown className='ml-2 h-4 w-4' />
 				</Button>
 			)
 		},
 	},
 	{
+		accessorKey: 'token',
+		id: 'token',
+		cell: ({ row }) => {
+			const token = row.getValue('token') as string
+
+			return <PatToken value={token} />
+		},
+	},
+	{
+		accessorKey: 'created at',
+		cell: ({ row }) => {
+			const date = row.getValue('createdAt') as Date
+			return <span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
+		},
+	},
+	{
 		id: 'actions',
 		cell: ({ row }) => {
-			return <Actions id={row.original.id} />
+			return <TableActions id={row.original.id} />
 		},
 	},
 ]

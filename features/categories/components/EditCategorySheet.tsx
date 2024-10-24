@@ -11,7 +11,7 @@ import { useGetCategory } from '@/features/categories/api/use-get-category'
 import { CategoryForm } from '@/features/categories/components/CategoryForm'
 import { useOpenCategory } from '@/features/categories/hooks/use-open-category'
 import { useConfirm } from '@/hooks/use-confirm'
-import { CategorySchema } from '@/schema/categories'
+import { CategorySchema } from '@/features/categories/schemas/index'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 

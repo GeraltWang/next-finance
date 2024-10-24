@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ImportTable } from './ImportTable'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ImportTable } from '@/features/transactions/components/import-table'
 import { convertAmountToMiliunits } from '@/lib/utils'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 
 type Props = {
 	data: string[][]

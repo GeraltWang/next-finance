@@ -1,6 +1,6 @@
 'use client'
 import { DataTable } from '@/components/DataTable'
-import { columns } from './columns'
+import { TableColumns } from '@/features/pat/components/table-columns'
 import { useGetPats } from '@/features/pat/api/use-get-pats'
 import { Plus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -49,7 +49,7 @@ const SettingsPage = () => {
 				<Plus className='mr-2 size-4' />
 				Generate New Token
 			</Button>
-			<DataTable filterKey='name' columns={columns} data={pats} />
+			<DataTable filterKey='name' columns={TableColumns} data={pats} />
 		</>
 	)
 }

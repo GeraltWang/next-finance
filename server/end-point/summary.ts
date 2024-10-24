@@ -1,5 +1,5 @@
 import { calculatePercentageChange, fillMissingDays } from '@/lib/utils'
-import prisma from '@/prisma/client'
+import prisma from '@/lib/prisma'
 import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'

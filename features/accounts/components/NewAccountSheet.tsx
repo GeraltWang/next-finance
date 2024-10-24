@@ -8,7 +8,7 @@ import {
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
 import { AccountForm } from '@/features/accounts/components/AccountForm'
 import { useNewAccount } from '@/features/accounts/hooks/use-new-account'
-import { AccountSchema } from '@/schema/accounts'
+import { AccountSchema } from '@/features/accounts/schemas/index'
 import { z } from 'zod'
 
 type FormValues = z.input<typeof AccountSchema>

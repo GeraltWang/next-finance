@@ -9,7 +9,7 @@ import {
 import { PatForm } from '@/features/pat/components/pat-form'
 import { useNewPat } from '@/features/pat/hooks/use-new-pat'
 import { useCreatePat } from '@/features/pat/api/use-create-pat'
-import { PatSchema } from '@/schema/pats'
+import { PatSchema } from '@/features/pat/schemas/index'
 import { z } from 'zod'
 
 type FormValues = z.infer<typeof PatSchema>

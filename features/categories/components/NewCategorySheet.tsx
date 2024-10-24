@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/sheet'
 import { CategoryForm } from '@/features/categories/components/CategoryForm'
 import { useNewCategory } from '@/features/categories/hooks/use-new-category'
-import { CategorySchema } from '@/schema/categories'
+import { CategorySchema } from '@/features/categories/schemas/index'
 import { z } from 'zod'
 import { useCreateCategory } from '@/features/categories/api/use-create-category'
 

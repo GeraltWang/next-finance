@@ -12,7 +12,7 @@ import { useGetCategories } from '@/features/categories/api/use-get-categories'
 import { useCreateTransaction } from '@/features/transactions/api/use-create-transaction'
 import { TransactionForm } from '@/features/transactions/components/TransactionForm'
 import { useNewTransaction } from '@/features/transactions/hooks/use-new-transaction'
-import { TransactionSchema } from '@/schema/transactions'
+import { TransactionSchema } from '@/features/transactions/schemas/index'
 import { Loader2 } from 'lucide-react'
 import { z } from 'zod'
 
