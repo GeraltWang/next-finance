@@ -5,7 +5,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from '@/components/ui/sheet'
-import { CategoryForm } from '@/features/categories/components/CategoryForm'
+import { CategoryForm } from '@/features/categories/components/category-form'
 import { useNewCategory } from '@/features/categories/hooks/use-new-category'
 import { CategorySchema } from '@/features/categories/schemas/index'
 import { z } from 'zod'

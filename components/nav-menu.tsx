@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useMedia } from 'react-use'
 import { usePathname, useRouter } from 'next/navigation'
-import { NavMenuLink } from '@/components/NavMenuLink'
+import { NavMenuLink } from '@/components/nav-menu-link'
 import { Sheet, SheetHeader, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Menu } from 'lucide-react'

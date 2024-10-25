@@ -1,4 +1,4 @@
-import { CategoryTooltip } from '@/components/CategoryTooltip'
+import { CategoryTooltip } from '@/components/category-tooltip'
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart'
 import { formatPercentage } from '@/lib/utils'
 import { Cell, Legend, Pie, PieChart } from 'recharts'

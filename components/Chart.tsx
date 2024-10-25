@@ -7,11 +7,11 @@ import {
 	SelectItem,
 	SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AreaChart, BarChart3, FileSearch, LineChart, Loader2 } from 'lucide-react'
-import { AreaVariant } from '@/components/AreaVariant'
-import { BarVariant } from './BarVariant'
-import { LineVariant } from './LineVariant'
-import { Skeleton } from './ui/skeleton'
+import { AreaVariant } from '@/components/area-variant'
+import { BarVariant } from '@/components/bar-variant'
+import { LineVariant } from '@/components/line-variant'
 
 type Props = {
 	data?: { date: string; income: number; expenses: number }[]

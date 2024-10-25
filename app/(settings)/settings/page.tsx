@@ -1,5 +1,5 @@
 'use client'
-import { DataTable } from '@/components/DataTable'
+import { DataTable } from '@/components/data-table'
 import { TableColumns } from '@/features/pat/components/table-columns'
 import { useGetPats } from '@/features/pat/api/use-get-pats'
 import { Plus, Loader2 } from 'lucide-react'

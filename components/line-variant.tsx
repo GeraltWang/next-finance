@@ -1,6 +1,6 @@
 import { XAxis, LineChart, Line, CartesianGrid } from 'recharts'
 import { ChartConfig, ChartContainer, ChartTooltip } from '@/components/ui/chart'
-import { CustomTooltip } from '@/components/CustomTooltip'
+import { CustomTooltip } from '@/components/custom-tooltip'
 import dayjs from 'dayjs'
 
 const chartConfig = {

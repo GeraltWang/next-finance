@@ -2,7 +2,7 @@ import { cn, formatCurrency, formatPercentage } from '@/lib/utils'
 import { VariantProps, cva } from 'class-variance-authority'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CountUp } from '@/components/CountUp'
+import { CountUp } from '@/components/count-up'
 import { type IconType } from 'react-icons'
 
 const boxVariant = cva('rounded-md p-3', {

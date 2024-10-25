@@ -1,10 +1,10 @@
-import { HeaderBar } from '@/components/HeaderBar'
-import { Filters } from '@/components/Filters'
-import { HeaderLogo } from '@/components/HeaderLogo'
-import { NavMenu } from '@/components/NavMenu'
-import { WelcomeMsg } from '@/components/WelcomeMsg'
+import { HeaderBar } from '@/components/header-bar'
+import { Filters } from '@/components/filters'
+import { HeaderLogo } from '@/components/header-logo'
+import { NavMenu } from '@/components/nav-menu'
+import { WelcomeMsg } from '@/components/welcome-msg'
 import { ClerkLoaded, UserButton } from '@clerk/nextjs'
-import { Footer } from '@/components/Footer'
+import { Footer } from '@/components/footer'
 import { SheetProvider } from '@/providers/sheet-provider'
 
 const DashboardLayout = ({

@@ -10,7 +10,7 @@ import {
 import { useRef, useState } from 'react'
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
-import { Select } from '@/components/Select'
+import { Select } from '@/components/select'
 
 export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 	const accountQuery = useGetAccounts()
@@ -24,7 +24,9 @@ export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 		value: account.id,
 	}))
 
-	const [promise, setPromise] = useState<{ resolve: (value: string | undefined) => void } | null>(null)
+	const [promise, setPromise] = useState<{ resolve: (value: string | undefined) => void } | null>(
+		null
+	)
 
 	// 这里使用 useRef 来保存选择的值, 而不是使用 useState, 因为 useState 变化会导致hooks重新渲染
 	const selectValue = useRef<string>()

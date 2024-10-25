@@ -12,7 +12,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { Select } from '@/components/Select'
+import { Select } from '@/components/select'
 
 type FormValues = z.input<typeof TransactionUpdateSchema>
 

@@ -17,7 +17,7 @@ import { useDeleteTransaction } from '@/features/transactions/api/use-delete-tra
 import { useEditTransaction } from '@/features/transactions/api/use-edit-transaction'
 import { useGetTransaction } from '@/features/transactions/api/use-get-transaction'
 import { useOpenTransaction } from '@/features/transactions/hooks/use-open-transaction'
-import { TransactionForm } from '@/features/transactions/components/TransactionForm'
+import { TransactionForm } from '@/features/transactions/components/transaction-form'
 
 type FormValues = z.input<typeof TransactionSchema>
 

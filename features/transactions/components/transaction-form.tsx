@@ -13,10 +13,10 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { DatePicker } from '@/components/DatePicker'
+import { DatePicker } from '@/components/date-picker'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/Select'
-import { AmountInput } from '@/components/AmountInput'
+import { Select } from '@/components/select'
+import { AmountInput } from '@/components/amount-input'
 
 import { Trash } from 'lucide-react'
 import { convertAmountToMiliunits } from '@/lib/utils'
