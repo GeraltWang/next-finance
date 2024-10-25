@@ -19,7 +19,7 @@ export const PatToken = ({ value }: { value: string }) => {
 	}
 
 	return (
-		<div className='flex items-center space-x-1'>
+		<div className='flex w-[400px] items-center space-x-1'>
 			<span className='break-all'>{isTokenVisible ? token : '••••••••'}</span>
 			<Button variant={'secondary'} size={'sm'} onClick={() => setIsTokenVisible(!isTokenVisible)}>
 				{isTokenVisible ? <EyeOff className='size-3' /> : <Eye className='size-3' />}

@@ -65,7 +65,11 @@ export const TableColumns: ColumnDef<ResponseType>[] = [
 		id: 'createdAt',
 		cell: ({ row }) => {
 			const date = row.getValue('createdAt') as Date
-			return <span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
+			return (
+				<div className='flex w-[140px]'>
+					<span>{dayjs(date).format('YYYY-MM-DD HH:mm')}</span>
+				</div>
+			)
 		},
 	},
 	{
