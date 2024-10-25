@@ -2,7 +2,7 @@ import { HeaderBar } from '@/components/header-bar'
 import { HeaderLogo } from '@/components/header-logo'
 import { NavMenu } from '@/components/nav-menu'
 import { ClerkLoaded, UserButton } from '@clerk/nextjs'
-import { Footer } from '@/components/footer'
+import { Footer } from '@/components/common-footer'
 // import { SheetProvider } from '@/providers/sheet-provider'
 
 const DashboardLayout = ({

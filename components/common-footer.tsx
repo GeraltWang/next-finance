@@ -1,6 +1,6 @@
 import { FaGithub } from 'react-icons/fa'
 
-export const Footer = () => {
+export const CommonFooter = () => {
 	return (
 		<footer className='mt-8 bg-blue-600 px-4 py-8 text-white lg:px-14'>
 			<div className='mx-auto max-w-screen-2xl'>
