@@ -2,8 +2,7 @@ import { HeaderBar } from '@/components/header-bar'
 import { HeaderLogo } from '@/components/header-logo'
 import { NavMenu } from '@/components/nav-menu'
 import { ClerkLoaded, UserButton } from '@clerk/nextjs'
-import { Footer } from '@/components/common-footer'
-// import { SheetProvider } from '@/providers/sheet-provider'
+import { CommonFooter } from '@/components/common-footer'
 
 const DashboardLayout = ({
 	children,
@@ -24,8 +23,7 @@ const DashboardLayout = ({
 				</div>
 			</HeaderBar>
 			<main className='flex-1 px-3 lg:px-14'>{children}</main>
-			<Footer />
-			{/* <SheetProvider /> */}
+			<CommonFooter />
 		</div>
 	)
 }
