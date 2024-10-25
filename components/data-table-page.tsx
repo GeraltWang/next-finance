@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,24 +30,67 @@ import {
 } from '@tanstack/react-table'
 
 import { useConfirm } from '@/hooks/use-confirm'
+import { formUrlQuery } from '@/lib/query'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
 	data: TData[]
+	total?: number
+	pageCount?: number
 	filterKey?: string
 	disabled?: boolean
 	bulkButton?: ({ table }: { table: TableType<TData> }) => JSX.Element
 	onDelete?: (rows: Row<TData>[]) => void
 }
 
-export function DataTable<TData, TValue>({
+export function DataTablePage<TData, TValue>({
 	columns,
 	data,
+	total,
+	pageCount,
 	filterKey,
 	disabled,
 	bulkButton,
 	onDelete,
 }: DataTableProps<TData, TValue>) {
+	const router = useRouter()
+
+	const searchParams = useSearchParams()
+
+	const page = searchParams.get('page') ?? '1'
+
+	const size = searchParams.get('pageSize') ?? '10'
+
+	const [{ pageIndex, pageSize }, setPagination] = useState({
+		pageIndex: Number(page) - 1, //initial page index
+		pageSize: Number(size), //default page size
+	})
+
+	useEffect(() => {
+		setPagination({
+			pageIndex: Number(page) - 1,
+			pageSize: Number(size),
+		})
+	}, [page, size])
+
+	const pagination = useMemo(
+		() => ({
+			pageIndex,
+			pageSize,
+		}),
+		[pageIndex, pageSize]
+	)
+
+	const createQueryString = (queryParams: Record<string, any>) => {
+		return formUrlQuery({ params: searchParams.toString(), queryParams })
+	}
+
+	useEffect(() => {
+		router.push(`${createQueryString({ page: pageIndex + 1, pageSize })}`, {
+			scroll: false,
+		})
+	}, [pageIndex, pageSize])
+
 	const [ConfirmDialog, confirm] = useConfirm('Are you sure?', 'This action cannot be undone.')
 
 	const [sorting, setSorting] = useState<SortingState>([])
@@ -58,6 +102,7 @@ export function DataTable<TData, TValue>({
 	const table = useReactTable({
 		data,
 		columns,
+		pageCount: pageCount ?? -1,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		onSortingChange: setSorting,
@@ -65,10 +110,14 @@ export function DataTable<TData, TValue>({
 		onColumnFiltersChange: setColumnFilters,
 		getFilteredRowModel: getFilteredRowModel(),
 		onRowSelectionChange: setRowSelection,
+		onPaginationChange: setPagination,
+		manualPagination: true, //turn off client-side pagination
+		rowCount: total,
 		state: {
 			sorting,
 			columnFilters,
 			rowSelection,
+			pagination,
 		},
 	})
 

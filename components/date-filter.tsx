@@ -20,6 +20,10 @@ export const DateFilter = () => {
 	const from = params.get('from') || ''
 	const to = params.get('to') || ''
 
+	// 搜索默认从第一页开始
+	const page = '1'
+	const pageSize = params.get('pageSize') ?? '10'
+
 	const defaultTo = dayjs().utc()
 	const defaultFrom = defaultTo.utc().subtract(30, 'day').startOf('day')
 
@@ -35,6 +39,8 @@ export const DateFilter = () => {
 			accountId,
 			from: dayjs(dateRange?.from || defaultFrom).format('YYYY-MM-DD'),
 			to: dayjs(dateRange?.to || defaultTo).format('YYYY-MM-DD'),
+			page,
+			pageSize,
 		}
 
 		const url = qs.stringifyUrl(

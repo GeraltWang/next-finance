@@ -1,10 +1,10 @@
 'use client'
-import { DataTable } from '@/components/data-table'
+import { DataTablePage } from '@/components/data-table-page'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useBulkDeleteTransactions } from '@/features/transactions/api/use-bulk-delete-transactions'
-import { useGetTransactions } from '@/features/transactions/api/use-get-transactions'
+import { useGetTransactionsPage } from '@/features/transactions/api/use-get-transactions-page'
 import { useNewTransaction } from '@/features/transactions/hooks/use-new-transaction'
 import { Loader2, Plus } from 'lucide-react'
 import { TableColumns } from '@/features/transactions/components/table-columns'
@@ -20,7 +20,6 @@ import { Table } from '@tanstack/react-table'
 import { useConfirm } from '@/hooks/use-confirm'
 import { useBulkMarkAsExpense } from '@/features/transactions/api/use-bulk-mark-as-expense'
 import type { ResponseType } from '@/features/transactions/components/table-columns'
-import { convertAmountToMiliunits } from '@/lib/utils'
 import { useOpenEditCategory } from '@/features/transactions/hooks/use-open-edit-category'
 
 enum VARIANTS {
@@ -74,13 +73,13 @@ const TransactionsPage = () => {
 
 	const { onOpen } = useNewTransaction()
 
-	const { data, isLoading } = useGetTransactions()
+	const { data, isLoading, isPlaceholderData } = useGetTransactionsPage()
 
-	const transactions = data || []
+	const transactions = data?.data || []
 
 	const deleteTransactions = useBulkDeleteTransactions()
 
-	const isDisabled = isLoading || deleteTransactions.isPending
+	const isDisabled = isLoading || isPlaceholderData || deleteTransactions.isPending
 
 	const [ConfirmMarkDialog, confirmMark] = useConfirm(
 		'Are you sure?',
@@ -169,9 +168,11 @@ const TransactionsPage = () => {
 					</div>
 				</CardHeader>
 				<CardContent>
-					<DataTable
+					<DataTablePage
 						columns={TableColumns}
 						data={transactions}
+						total={data?.totalCount}
+						pageCount={data?.pageCount}
 						filterKey='payee'
 						disabled={isDisabled}
 						onDelete={row => {

@@ -16,6 +16,8 @@ const app = new Hono()
 			z.object({
 				from: z.string().optional(),
 				to: z.string().optional(),
+				page: z.string().optional(),
+				pageSize: z.string().optional(),
 				accountId: z.string().optional(),
 			})
 		),
@@ -26,13 +28,95 @@ const app = new Hono()
 				return c.json({ error: 'Unauthorized' }, 401)
 			}
 
-			const { from, to, accountId } = c.req.valid('query')
+			const { from, to, page, pageSize, accountId } = c.req.valid('query')
 
 			const defaultTo = dayjs().utc().endOf('day').toDate()
 			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
 
 			const startDate = from ? dayjs(from, 'YYYY-MM-DD').utc().startOf('day').toDate() : defaultFrom
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc().endOf('day').toDate() : defaultTo
+
+			const data = await prisma.transaction.findMany({
+					select: {
+						id: true,
+						date: true,
+						category: {
+							select: {
+								name: true,
+							},
+						},
+						categoryId: true,
+						payee: true,
+						amount: true,
+						notes: true,
+						account: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						accountId: true,
+					},
+					where: {
+						account: {
+							userId: userMeta.userId,
+						},
+						date: {
+							gte: startDate,
+							lte: endDate,
+						},
+						...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
+					},
+					orderBy: {
+						date: 'asc',
+					},
+				})
+
+				return c.json({ data })
+		}
+)
+	.get('/page', clerkMiddleware(),
+		zValidator(
+			'query',
+			z.object({
+				from: z.string().optional(),
+				to: z.string().optional(),
+				page: z.string().optional(),
+				pageSize: z.string().optional(),
+				accountId: z.string().optional(),
+			})
+		), async (c) => {
+			const auth = getAuth(c)
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+			if (!userMeta?.userId) {
+				return c.json({ error: 'Unauthorized' }, 401)
+			}
+
+			const { from, to, page = 1, pageSize = 10, accountId } = c.req.valid('query')
+
+			const defaultTo = dayjs().utc().endOf('day').toDate()
+			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
+
+			const startDate = from ? dayjs(from, 'YYYY-MM-DD').utc().startOf('day').toDate() : defaultFrom
+			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc().endOf('day').toDate() : defaultTo
+
+			const skip = (+page - 1) * +pageSize
+			const take = Number(pageSize)
+
+			const totalCount = await prisma.transaction.count({
+				where: {
+					account: {
+						userId: userMeta.userId,
+					},
+					date: {
+						gte: startDate,
+						lte: endDate,
+					},
+					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
+				},
+			})
+
+			const pageCount = Math.ceil(totalCount / take)
 
 			const data = await prisma.transaction.findMany({
 				select: {
@@ -68,11 +152,12 @@ const app = new Hono()
 				orderBy: {
 					date: 'asc',
 				},
+				skip,
+				take,
 			})
 
-			return c.json({ data })
-		}
-	)
+			return c.json({ data, totalCount, page: Number(page), pageSize: take, pageCount })
+		})
 	.get(
 		'/:id',
 		clerkMiddleware(),
