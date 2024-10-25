@@ -12,7 +12,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form'
-import { Select } from '@/components/select'
+import { CommonSelect } from '@/components/common-select'
 
 type FormValues = z.input<typeof TransactionUpdateSchema>
 
@@ -63,7 +63,7 @@ export const EditCategoryForm = ({
 						<FormItem>
 							<FormLabel>Category</FormLabel>
 							<FormControl>
-								<Select
+								<CommonSelect
 									value={field.value}
 									options={categoryOptions}
 									onCreate={onCreateCategory}

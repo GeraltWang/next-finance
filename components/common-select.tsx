@@ -12,7 +12,7 @@ type Props = {
 	placeholder?: string
 }
 
-export const Select = ({
+export const CommonSelect = ({
 	onChange,
 	onCreate,
 	value,

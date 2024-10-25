@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form'
 import { DatePicker } from '@/components/date-picker'
 import { Textarea } from '@/components/ui/textarea'
-import { Select } from '@/components/select'
+import { CommonSelect } from '@/components/common-select'
 import { AmountInput } from '@/components/amount-input'
 
 import { Trash } from 'lucide-react'
@@ -98,7 +98,7 @@ export const TransactionForm = ({
 						<FormItem>
 							<FormLabel>Account</FormLabel>
 							<FormControl>
-								<Select
+								<CommonSelect
 									value={field.value}
 									options={accountOptions}
 									onCreate={onCreateAccount}
@@ -118,7 +118,7 @@ export const TransactionForm = ({
 						<FormItem>
 							<FormLabel>Category</FormLabel>
 							<FormControl>
-								<Select
+								<CommonSelect
 									value={field.value}
 									options={categoryOptions}
 									onCreate={onCreateCategory}

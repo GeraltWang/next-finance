@@ -17,7 +17,7 @@ type Props = {
 	data?: { date: string; income: number; expenses: number }[]
 }
 
-export const Chart = ({ data = [] }: Props) => {
+export const CommonChart = ({ data = [] }: Props) => {
 	const [chartType, setChartType] = useState('area')
 
 	const onTypeChange = (type: string) => {

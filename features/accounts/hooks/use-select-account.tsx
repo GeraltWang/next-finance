@@ -10,7 +10,7 @@ import {
 import { useRef, useState } from 'react'
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
-import { Select } from '@/components/select'
+import { CommonSelect } from '@/components/common-select'
 
 export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 	const accountQuery = useGetAccounts()
@@ -58,7 +58,7 @@ export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 						<DialogTitle>Select Account</DialogTitle>
 						<DialogDescription>Please select an account to continue.</DialogDescription>
 					</DialogHeader>
-					<Select
+					<CommonSelect
 						options={accountOptions}
 						onCreate={onCreateAccount}
 						onChange={value => {

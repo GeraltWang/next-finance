@@ -1,5 +1,5 @@
 import { HeaderBar } from '@/components/header-bar'
-import { Filters } from '@/components/filters'
+import { CommonFilters } from '@/components/common-filters'
 import { HeaderLogo } from '@/components/header-logo'
 import { NavMenu } from '@/components/nav-menu'
 import { WelcomeMsg } from '@/components/welcome-msg'
@@ -25,7 +25,7 @@ const DashboardLayout = ({
 					</ClerkLoaded>
 				</div>
 				<WelcomeMsg />
-				<Filters />
+				<CommonFilters />
 			</HeaderBar>
 			<main className='flex-1 px-3 lg:px-14'>{children}</main>
 			<Footer />
