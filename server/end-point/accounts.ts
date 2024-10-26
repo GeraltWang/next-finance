@@ -5,13 +5,22 @@ import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono()
 	.get('/', clerkMiddleware(), async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const data = await prisma.account.findMany({
@@ -31,9 +40,17 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')
@@ -62,9 +79,17 @@ const app = new Hono()
 	)
 	.post('/', clerkMiddleware(), zValidator('json', AccountSchema), async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const values = c.req.valid('json')
@@ -88,9 +113,17 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('json')
@@ -114,9 +147,17 @@ const app = new Hono()
 		zValidator('json', AccountSchema),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')
@@ -159,9 +200,17 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')

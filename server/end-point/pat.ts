@@ -7,13 +7,22 @@ import prisma from '@/lib/prisma'
 import { zValidator } from '@hono/zod-validator'
 import { PatSchema } from '@/features/pat/schemas/index'
 import { z } from 'zod'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
-const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.get('/', clerkMiddleware(), async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const existingUser = await prisma.user.findUnique({
@@ -36,9 +45,17 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 	})
 	.post('/generate-pat', clerkMiddleware(), zValidator('json', PatSchema), async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const values = c.req.valid('json')
@@ -50,7 +67,7 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 			select: {
 				id: true,
 				email: true,
-			}
+			},
 		})
 
 		if (!existingUser) {
@@ -91,9 +108,17 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')
@@ -105,7 +130,7 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 			const existingUser = await prisma.user.findUnique({
 				where: {
 					id: userMeta.userId,
-				}
+				},
 			})
 
 			if (!existingUser) {
@@ -116,8 +141,8 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 				where: {
 					id: values.id,
 					userId: existingUser.id,
-					email: existingUser.email
-				}
+					email: existingUser.email,
+				},
 			})
 
 			if (!patUserInfoMatches) {
@@ -126,8 +151,8 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 
 			await prisma.personalAccessToken.delete({
 				where: {
-					id: values.id
-				}
+					id: values.id,
+				},
 			})
 
 			return c.json({ data: { id: values.id } })

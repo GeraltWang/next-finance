@@ -6,6 +6,7 @@ import { zValidator } from '@hono/zod-validator'
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono()
 	.get(
@@ -23,9 +24,17 @@ const app = new Hono()
 		),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const { from, to, page, pageSize, accountId } = c.req.valid('query')
@@ -37,45 +46,47 @@ const app = new Hono()
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc().endOf('day').toDate() : defaultTo
 
 			const data = await prisma.transaction.findMany({
-					select: {
-						id: true,
-						date: true,
-						category: {
-							select: {
-								name: true,
-							},
+				select: {
+					id: true,
+					date: true,
+					category: {
+						select: {
+							name: true,
 						},
-						categoryId: true,
-						payee: true,
-						amount: true,
-						notes: true,
-						account: {
-							select: {
-								id: true,
-								name: true,
-							},
-						},
-						accountId: true,
 					},
-					where: {
-						account: {
-							userId: userMeta.userId,
+					categoryId: true,
+					payee: true,
+					amount: true,
+					notes: true,
+					account: {
+						select: {
+							id: true,
+							name: true,
 						},
-						date: {
-							gte: startDate,
-							lte: endDate,
-						},
-						...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
 					},
-					orderBy: {
-						date: 'asc',
+					accountId: true,
+				},
+				where: {
+					account: {
+						userId: userMeta.userId,
 					},
-				})
+					date: {
+						gte: startDate,
+						lte: endDate,
+					},
+					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
+				},
+				orderBy: {
+					date: 'asc',
+				},
+			})
 
-				return c.json({ data })
+			return c.json({ data })
 		}
-)
-	.get('/page', clerkMiddleware(),
+	)
+	.get(
+		'/page',
+		clerkMiddleware(),
 		zValidator(
 			'query',
 			z.object({
@@ -85,11 +96,20 @@ const app = new Hono()
 				pageSize: z.string().optional(),
 				accountId: z.string().optional(),
 			})
-		), async (c) => {
+		),
+		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const { from, to, page = 1, pageSize = 10, accountId } = c.req.valid('query')
@@ -157,16 +177,25 @@ const app = new Hono()
 			})
 
 			return c.json({ data, totalCount, page: Number(page), pageSize: take, pageCount })
-		})
+		}
+	)
 	.get(
 		'/:id',
 		clerkMiddleware(),
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')
@@ -202,9 +231,17 @@ const app = new Hono()
 	)
 	.post('/', clerkMiddleware(), zValidator('json', TransactionSchema), async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const values = c.req.valid('json')
@@ -226,9 +263,17 @@ const app = new Hono()
 		zValidator('json', z.array(TransactionSchema)),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('json')
@@ -246,9 +291,17 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('json')
@@ -274,9 +327,17 @@ const app = new Hono()
 		zValidator('json', TransactionSchema),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')
@@ -319,9 +380,17 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()), data: TransactionUpdateSchema })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('json')
@@ -360,9 +429,17 @@ const app = new Hono()
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('json')
@@ -408,9 +485,17 @@ const app = new Hono()
 		zValidator('param', z.object({ id: z.string().optional() })),
 		async c => {
 			const auth = getAuth(c)
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-			if (!userMeta?.userId) {
+			if (!auth?.userId) {
 				return c.json({ error: 'Unauthorized' }, 401)
+			}
+			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+			if (!userMeta?.userId) {
+				const user = await getUserByClerkUserId(auth.userId)
+				if (!user) {
+					return c.json({ error: 'User not found' }, 401)
+				}
+				userMeta.userId = user.id
 			}
 
 			const values = c.req.valid('param')

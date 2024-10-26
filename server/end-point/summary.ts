@@ -6,6 +6,7 @@ import { zValidator } from '@hono/zod-validator'
 import dayjs from '@/lib/dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono().get(
 	'/',
@@ -20,9 +21,17 @@ const app = new Hono().get(
 	),
 	async c => {
 		const auth = getAuth(c)
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-		if (!userMeta?.userId) {
+		if (!auth?.userId) {
 			return c.json({ error: 'Unauthorized' }, 401)
+		}
+		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+
+		if (!userMeta?.userId) {
+			const user = await getUserByClerkUserId(auth.userId)
+			if (!user) {
+				return c.json({ error: 'User not found' }, 401)
+			}
+			userMeta.userId = user.id
 		}
 
 		const { from, to, accountId } = c.req.valid('query')
