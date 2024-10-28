@@ -4,6 +4,13 @@ import { NavMenu } from '@/components/nav-menu'
 import { ClerkLoaded, UserButton } from '@clerk/nextjs'
 import { CommonFooter } from '@/components/common-footer'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+	title: 'Settings - Next Finance',
+	description: 'Manage your account settings',
+}
+
 const DashboardLayout = ({
 	children,
 }: Readonly<{
