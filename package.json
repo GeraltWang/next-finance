@@ -41,7 +41,7 @@
 		"lucide-react": "^0.419.0",
 		"next": "14.2.15",
 		"next-themes": "^0.3.0",
-		"nextjs-toploader": "^1.6.12",
+		"nextjs-toploader": "^3.7.15",
 		"prisma": "^5.21.1",
 		"query-string": "^9.1.1",
 		"react": "^18",
