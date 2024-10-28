@@ -17,7 +17,7 @@ import { z } from 'zod'
 type FormValues = z.input<typeof ApiSchema>
 
 export const EditTransactionCategorySheet = () => {
-	const { isOpen, onClose, ids } = useOpenEditCategory()
+	const { isOpen, onClose, ids, table } = useOpenEditCategory()
 
 	const categoryQuery = useGetCategories()
 	const categoryMutation = useCreateCategory()
@@ -38,6 +38,7 @@ export const EditTransactionCategorySheet = () => {
 	const handleSubmit = (values: FormValues) => {
 		bulkEditMutation.mutate(values, {
 			onSuccess: () => {
+				table?.resetRowSelection()
 				onClose()
 			},
 		})
