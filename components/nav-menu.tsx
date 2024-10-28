@@ -35,7 +35,7 @@ export const NavMenu = () => {
 					</Button>
 				</SheetTrigger>
 				<SheetContent className='px-2' side={'left'} aria-describedby='Menu list'>
-					<SheetHeader>
+					<SheetHeader className='px-4 text-left'>
 						<SheetTitle>Menu</SheetTitle>
 					</SheetHeader>
 					<nav className='flex flex-col gap-y-2 pt-6'>

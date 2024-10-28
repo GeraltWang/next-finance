@@ -1,6 +1,13 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { SettingsNavMenu } from '@/components/settings-nav-menu'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+	title: 'Settings - Next Finance',
+	description: 'Manage your account settings',
+}
+
 const SettingsSubLayout = ({
 	children,
 }: Readonly<{
