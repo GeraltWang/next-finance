@@ -114,11 +114,13 @@ const app = new Hono()
 
 			const { from, to, page = 1, pageSize = 10, accountId } = c.req.valid('query')
 
-			const defaultTo = dayjs().utc().endOf('day').toDate()
-			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
+			const defaultTo = dayjs().utc(true).endOf('day').toDate()
+			const defaultFrom = dayjs(defaultTo).utc(true).subtract(30, 'day').startOf('day').toDate()
 
-			const startDate = from ? dayjs(from, 'YYYY-MM-DD').utc().startOf('day').toDate() : defaultFrom
-			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc().endOf('day').toDate() : defaultTo
+			const startDate = from
+				? dayjs(from, 'YYYY-MM-DD').utc(true).startOf('day').toDate()
+				: defaultFrom
+			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc(true).endOf('day').toDate() : defaultTo
 
 			const skip = (+page - 1) * +pageSize
 			const take = Number(pageSize)
