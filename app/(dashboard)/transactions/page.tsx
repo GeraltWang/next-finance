@@ -100,7 +100,7 @@ const TransactionsPage = () => {
 					disabled={isDisabled}
 					onClick={async () => {
 						const ids = table.getFilteredSelectedRowModel().rows.map(row => row.original.id)
-						onOpenEditTransactionCategory(ids)
+						onOpenEditTransactionCategory(ids, table)
 					}}
 				>
 					Edit category ({table.getFilteredSelectedRowModel().rows.length})
