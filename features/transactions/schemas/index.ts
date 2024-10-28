@@ -17,3 +17,11 @@ export const TransactionUpdateSchema = z.object({
 	accountId: z.string().optional(),
 	categoryId: z.string().nullable().optional(),
 })
+
+export const TransactionFastSchema = z.object({
+	amount: z.number().int(),
+	payee: z.string(),
+	notes: z.string().nullable().optional(),
+	accountId: z.string(),
+	categoryId: z.string().nullable().optional(),
+})

@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { verify as verifyJwt } from 'hono/jwt'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
+import { env } from 'hono/adapter'
 import type { Bindings, Variables } from '@/server/env'
 
 import prisma from '@/lib/prisma'
@@ -14,7 +15,7 @@ import webhook from '@/server/end-point/webhook'
 import pat from '@/server/end-point/pat'
 import expose from '@/server/end-point/expose'
 
-const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.basePath('/api')
 	.use(logger())
 	.use('/pat/*', cors())
@@ -27,8 +28,8 @@ const app = new Hono<{ Bindings: Bindings, Variables: Variables }>()
 			return c.json({ error: 'Authorization token is missing' }, 401)
 		}
 
-		const JWT_SECRET = c.env.JWT_SECRET
-		
+		const { JWT_SECRET } = env(c)
+
 		let user
 
 		try {
