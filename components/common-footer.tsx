@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { FaGithub } from 'react-icons/fa'
 
 export const CommonFooter = () => {
@@ -5,9 +6,31 @@ export const CommonFooter = () => {
 		<footer className='mt-8 bg-blue-600 px-4 py-8 text-white lg:px-14'>
 			<div className='mx-auto max-w-screen-2xl'>
 				<div className='mb-6 flex flex-col items-start justify-between md:flex-row'>
-					<div>
+					<div className='space-y-2'>
 						<h3 className='text-xl font-bold'>Next Finance</h3>
 						<p className='mt-1 text-sm'>Your trusted financial partner</p>
+						<ul className='space-y-2'>
+							<li className='flex gap-2 text-sm'>
+								Powered by{' '}
+								<Image
+									className='w-[80px]'
+									src={'/next.svg'}
+									width={100}
+									height={40}
+									alt={'Next.js'}
+								/>
+							</li>
+							<li className='flex gap-2 text-sm'>
+								Deployed on{' '}
+								<Image
+									className='w-[80px]'
+									src={'/vercel.svg'}
+									width={100}
+									height={40}
+									alt={'Vercel'}
+								/>
+							</li>
+						</ul>
 					</div>
 					<div className='mt-4 flex flex-col items-center space-x-6 lg:mt-0 lg:flex-row'>
 						<nav className='flex flex-col gap-4 lg:flex-row'>
