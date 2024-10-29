@@ -34,74 +34,80 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 - API: [`hono`](https://hono.dev/)
 - Authentication: [`Clerk`](https://clerk.com/)
 
+## Apple Shortcuts
+
+You can use the following shortcut to quickly add expenses to your account.
+Before using the shortcut, you need to create a PAT token in the settings page then copy and paste it in the shortcut dictionary `Authorization` key.
+
+- shortcut: [`Add Expense`](https://www.icloud.com/shortcuts/0bdb5dbe57b5462aaf906db47f1eda9f)
+
 ## Exposed API Documentation
 
 ### Endpoints
 
-All endpoints are prefixed with `/api/expose`.
-All endpoints require a valid `Bearer `<your-pat-token>``token in the`Authorization` header.
-You can generate PAT token in settings page.
+- All endpoints are prefixed with `/api/expose`.
+- All endpoints require a valid `Bearer <your-pat-token>`token in the`Authorization` header.
+- You can generate PAT token in settings page.
 
 #### 1. Get all accounts
 
-**Endpoint:** `/api/expose/accounts`
-**Method:** `GET`
-**Request Headers:**
+- **Endpoint:** `/api/expose/accounts`
+- **Method:** `GET`
+- **Request Headers:**
 
-- `Authorization`: Bearer PAT Token
+  - `Authorization`: Bearer PAT Token
 
-**Response:**
-
-```json
-{
-	"data": [
-		{
-			"id": "string",
-			"name": "string"
-		}
-	]
-}
-```
+- **Response:**
+  ```json
+  {
+  	"data": [
+  		{
+  			"id": "string",
+  			"name": "string"
+  		}
+  	]
+  }
+  ```
 
 #### 2. Get all categories
 
-**Endpoint:** `/api/expose/categories`
-**Method:** `GET`
-**Request Headers:**
+- **Endpoint:** `/api/expose/categories`
+- **Method:** `GET`
+- **Request Headers:**
 
-- `Authorization`: Bearer PAT Token
+  - `Authorization`: Bearer PAT Token
 
-**Response:**
+- **Response:**
 
-```json
-{
-	"data": [
-		{
-			"id": "string",
-			"name": "string"
-		}
-	]
-}
-```
+  ```json
+  {
+  	"data": [
+  		{
+  			"id": "string",
+  			"name": "string"
+  		}
+  	]
+  }
+  ```
 
 #### 3. Add a new expense
 
-**Endpoint:** `/api/expose/add-expense`
-**Method:** `POST`
-**Request Headers:**
+- **Endpoint:** `/api/expose/add-expense`
+- **Method:** `POST`
+- **Request Headers:**
 
-- `Authorization`: Bearer PAT Token
+  - `Authorization`: Bearer PAT Token
 
-**Request Body:**
+- **Request Body:**
 
-```
-{
-  "accountName": "string",
-  "categoryName": "string",
-  "amount": "number",
-  "payee": "string"
-}
-```
+  ```json
+  {
+  	"accountName": "string",
+  	"categoryName": "string",
+  	"amount": "number",
+  	"payee": "string"
+  }
+  ```
 
 ## Learn More 📚
 
