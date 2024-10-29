@@ -14,7 +14,7 @@ export function formUrlQuery({ params, queryParams }: UrlQueryParams) {
 			url: window.location.pathname,
 			query: currentUrl,
 		},
-		{ skipNull: true }
+		{ skipNull: true, skipEmptyString: true }
 	)
 }
 
@@ -30,6 +30,6 @@ export function removeKeysFromQuery({ params, keysToRemove }: RemoveUrlQueryPara
 			url: window.location.pathname,
 			query: currentUrl,
 		},
-		{ skipNull: true }
+		{ skipNull: true, skipEmptyString: true }
 	)
 }

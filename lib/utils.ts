@@ -129,7 +129,7 @@ type Period = {
 // }
 
 export function formatDateRange(period: Period) {
-	const defaultTo = dayjs()
+	const defaultTo = dayjs().utc(true)
 	const defaultFrom = defaultTo.subtract(30, 'day')
 
 	if (!period?.from) {
