@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import type { Bindings, Variables } from '@/server/env'
 import prisma from '@/lib/prisma'
+import { convertAmountToMiliunits } from '@/lib/utils'
 import { TransactionFastSchema } from '@/features/transactions/schemas'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
@@ -41,7 +42,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data: categories })
 	})
-	.post('/add-transaction', zValidator('json', TransactionFastSchema), async c => {
+	.post('/add-expense', zValidator('json', TransactionFastSchema), async c => {
 		const values = c.req.valid('json')
 
 		const user = c.get('jwtPayload')
@@ -70,7 +71,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		const created = await prisma.transaction.create({
 			data: {
-				amount: values.amount,
+				amount: convertAmountToMiliunits(values.amount) * -1,
 				payee: values.payee,
 				categoryId: existingCategory.id,
 				accountId: existingAccount.id,
@@ -78,7 +79,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			},
 		})
 
-		return c.json({ data: { uId: user.id, tId: created.id }, message: 'transaction created' })
+		return c.json({ data: { uId: user.id, tId: created.id }, message: 'expense created' })
 	})
 
 export default app
