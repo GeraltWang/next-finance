@@ -16,7 +16,7 @@ type Props = {
 // const acceptDateFormat = 'YYYY/MM/DD HH:mm'
 // 数据库存储的日期格式
 // const outputDateFormat = 'yyyy-MM-dd'
-const outputDateFormat = 'YYYY-MM-DD HH:mm'
+const outputDateFormat = 'YYYY-MM-DD HH:mm:ss'
 // 必填字段 金额 时间 收款人 备注
 const requiredFields = ['amount', 'payee', 'date', 'notes']
 interface SelectedColumnsState {
@@ -92,7 +92,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
 				...item,
 				amount: convertAmountToMiliunits(parseFloat(item.amount)),
 				// date: format(parse(item.date, acceptDateFormat, new Date()), outputDateFormat),
-				date: dayjs(item.date).format(outputDateFormat),
+				date: dayjs(item.date).utc(true).format(outputDateFormat),
 			}
 		})
 		console.log('🚀 ~ formattedData ~ formattedData:', formattedData)
