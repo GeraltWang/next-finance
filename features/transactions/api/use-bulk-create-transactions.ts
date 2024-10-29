@@ -1,4 +1,5 @@
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
@@ -15,6 +16,11 @@ export const useBulkCreateTransactions = () => {
 	const mutation = useMutation<ResponseType, Error, RequestType>({
 		mutationFn: async json => {
 			const response = await client.api.transactions['bulk-create']['$post']({ json })
+
+			if (!response.ok) {
+				throw await handleErrors(response)
+			}
+
 			return await response.json()
 		},
 		onSuccess: () => {
@@ -26,8 +32,8 @@ export const useBulkCreateTransactions = () => {
 				queryKey: ['summary'],
 			})
 		},
-		onError: () => {
-			toast.error('Failed to create transactions')
+		onError: e => {
+			toast.error(e.message || 'Failed to create transactions')
 		},
 	})
 

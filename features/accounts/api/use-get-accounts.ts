@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 
 export const useGetAccounts = () => {
 	const query = useQuery({
@@ -8,7 +9,7 @@ export const useGetAccounts = () => {
 			const response = await client.api.accounts.$get()
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch accounts')
+				throw await handleErrors(response)
 			}
 
 			const { data } = await response.json()

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
 import { useSearchParams } from 'next/navigation'
 import { convertAmountFromMiliunits } from '@/lib/utils'
+import { handleErrors } from '@/lib/errors'
 
 export const useGetSummary = () => {
 	const params = useSearchParams()
@@ -22,7 +23,7 @@ export const useGetSummary = () => {
 			})
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch summary')
+				throw await handleErrors(response)
 			}
 
 			const { data } = await response.json()

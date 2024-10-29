@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 
 export const useGetAccount = (id?: string) => {
 	const query = useQuery({
@@ -11,7 +12,7 @@ export const useGetAccount = (id?: string) => {
 			})
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch account')
+				throw await handleErrors(response)
 			}
 
 			const { data } = await response.json()

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 
 export const useGetCategories = () => {
 	const query = useQuery({
@@ -8,7 +9,7 @@ export const useGetCategories = () => {
 			const response = await client.api.categories.$get()
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch categories')
+				throw await handleErrors(response)
 			}
 
 			const { data } = await response.json()

@@ -1,4 +1,5 @@
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferResponseType } from 'hono'
 import { toast } from 'sonner'
@@ -13,6 +14,11 @@ export const useDeletePat = (id?: string) => {
 			const response = await client.api.pat[':id']['$delete']({
 				param: { id },
 			})
+
+			if (!response.ok) {
+				throw await handleErrors(response)
+			}
+
 			return await response.json()
 		},
 		onSuccess: () => {
@@ -24,8 +30,8 @@ export const useDeletePat = (id?: string) => {
 				queryKey: ['pats'],
 			})
 		},
-		onError: () => {
-			toast.error('Failed to delete personal access token')
+		onError: (e) => {
+			toast.error(e.message || 'Failed to delete personal access token')
 		},
 	})
 

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 
 export const useGetPats = () => {
 	const query = useQuery({
@@ -8,7 +9,7 @@ export const useGetPats = () => {
 			const response = await client.api.pat.$get()
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch')
+				throw await handleErrors(response)
 			}
 
 			const { data } = await response.json()

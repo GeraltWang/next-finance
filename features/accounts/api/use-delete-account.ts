@@ -1,4 +1,5 @@
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferResponseType } from 'hono'
 import { toast } from 'sonner'
@@ -13,6 +14,11 @@ export const useDeleteAccount = (id?: string) => {
 			const response = await client.api.accounts[':id']['$delete']({
 				param: { id },
 			})
+
+			if (!response.ok) {
+				throw await handleErrors(response)
+			}
+
 			return await response.json()
 		},
 		onSuccess: () => {
@@ -31,8 +37,8 @@ export const useDeleteAccount = (id?: string) => {
 				queryKey: ['summary'],
 			})
 		},
-		onError: () => {
-			toast.error('Failed to delete account')
+		onError: e => {
+			toast.error(e.message || 'Failed to delete account')
 		},
 	})
 

@@ -1,5 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 import { useSearchParams } from 'next/navigation'
 import { convertAmountFromMiliunits } from '@/lib/utils'
 
@@ -28,7 +29,7 @@ export const useGetTransactionsPage = () => {
 			})
 
 			if (!response.ok) {
-				throw new Error('Failed to fetch transactions')
+				throw await handleErrors(response)
 			}
 
 			const res = await response.json()

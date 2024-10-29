@@ -1,4 +1,5 @@
 import { client } from '@/lib/hono'
+import { handleErrors } from '@/lib/errors'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
@@ -16,6 +17,11 @@ export const useEditTransaction = (id?: string) => {
 				param: { id },
 				json,
 			})
+
+			if (!response.ok) {
+				throw await handleErrors(response)
+			}
+
 			return await response.json()
 		},
 		onSuccess: () => {
@@ -30,8 +36,8 @@ export const useEditTransaction = (id?: string) => {
 				queryKey: ['summary'],
 			})
 		},
-		onError: () => {
-			toast.error('Failed to edit transaction')
+		onError: e => {
+			toast.error(e.message || 'Failed to edit transaction')
 		},
 	})
 
