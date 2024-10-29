@@ -94,9 +94,20 @@ const app = new Hono()
 
 		const values = c.req.valid('json')
 
+		const existingAccount = await prisma.account.findFirst({
+			where: {
+				name: values.name,
+				userId: userMeta.userId,
+			},
+		})
+
+		if (existingAccount) {
+			return c.json({ error: `Account with name '${existingAccount.name}' already exists` }, 400)
+		}
+
 		const data = await prisma.account.create({
 			data: {
-				...values,
+				name: values.name.trim(),
 				userId: userMeta.userId,
 			},
 			select: {

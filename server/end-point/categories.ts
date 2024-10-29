@@ -97,9 +97,20 @@ const app = new Hono()
 
 		const values = c.req.valid('json')
 
+		const existingCategory = await prisma.category.findFirst({
+			where: {
+				name: values.name,
+				userId: userMeta.userId,
+			},
+		})
+
+		if (existingCategory) {
+			return c.json({ error: `Category with name '${existingCategory.name}' already exists` }, 400)
+		}
+
 		const data = await prisma.category.create({
 			data: {
-				...values,
+				name: values.name.trim(),
 				userId: userMeta.userId,
 			},
 			select: {
