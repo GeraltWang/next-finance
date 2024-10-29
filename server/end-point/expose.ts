@@ -46,9 +46,34 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		const user = c.get('jwtPayload')
 
+		const existingAccount = await prisma.account.findFirst({
+			where: {
+				name: values.accountName,
+				userId: user.id,
+			},
+		})
+
+		const existingCategory = await prisma.category.findFirst({
+			where: {
+				name: values.categoryName,
+				userId: user.id,
+			},
+		})
+
+		if (!existingAccount) {
+			return c.json({ error: `Account ${values.accountName} not found` }, 404)
+		}
+
+		if (!existingCategory) {
+			return c.json({ error: `Category ${values.categoryName} not found` }, 404)
+		}
+
 		const created = await prisma.transaction.create({
 			data: {
-				...values,
+				amount: values.amount,
+				payee: values.payee,
+				categoryId: existingCategory.id,
+				accountId: existingAccount.id,
 				date: new Date(),
 			},
 		})

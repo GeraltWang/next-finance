@@ -1,12 +1,9 @@
 import { Hono } from 'hono'
-import { verify as verifyJwt } from 'hono/jwt'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
-import { env } from 'hono/adapter'
+
 import type { Bindings, Variables } from '@/server/env'
-
-import prisma from '@/lib/prisma'
-
+import jwtMiddleware from '@/server/middleware/jwt'
 import accounts from '@/server/end-point/accounts'
 import categories from '@/server/end-point/categories'
 import transactions from '@/server/end-point/transactions'
@@ -20,42 +17,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.use(logger())
 	.use('/pat/*', cors())
 	.use('/expose/*', cors())
-	.use('/expose/*', async (c, next) => {
-		const auth = c.req.header('Authorization')
-		const token = auth?.split(' ')[1]
-
-		if (!token) {
-			return c.json({ error: 'Authorization token is missing' }, 401)
-		}
-
-		const { JWT_SECRET } = env(c)
-
-		let user
-
-		try {
-			user = await verifyJwt(token, JWT_SECRET)
-		} catch (error) {
-			return c.json({ error: 'Invalid authorization token' }, 401)
-		}
-
-		if (!user || !user?.id || !user?.email) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-
-		const existingUser = await prisma.user.findUnique({
-			where: {
-				id: user.id as string,
-			},
-		})
-
-		if (!existingUser) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-
-		c.set('jwtPayload', user)
-
-		return await next()
-	})
+	.use('/expose/*', jwtMiddleware)
 
 const routes = app
 	.route('/accounts', accounts)
