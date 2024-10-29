@@ -24,12 +24,12 @@ export const DateFilter = () => {
 	const page = '1'
 	const pageSize = params.get('pageSize') ?? '10'
 
-	const defaultTo = dayjs().utc()
-	const defaultFrom = defaultTo.utc().subtract(30, 'day').startOf('day')
+	const defaultTo = dayjs().utc(true)
+	const defaultFrom = defaultTo.utc(true).subtract(30, 'day').startOf('day')
 
 	const paramState = {
-		from: from ? dayjs(from).utc().toDate() : defaultFrom.toDate(),
-		to: to ? dayjs(to).utc().toDate() : defaultTo.toDate(),
+		from: from ? dayjs(from).utc(true).toDate() : defaultFrom.toDate(),
+		to: to ? dayjs(to).utc(true).toDate() : defaultTo.toDate(),
 	}
 
 	const [date, setDate] = useState<DateRange | undefined>(paramState)
