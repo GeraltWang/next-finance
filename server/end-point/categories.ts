@@ -97,9 +97,11 @@ const app = new Hono()
 
 		const values = c.req.valid('json')
 
+		const trimName = values.name.trim()
+
 		const existingCategory = await prisma.category.findFirst({
 			where: {
-				name: values.name,
+				name: trimName,
 				userId: userMeta.userId,
 			},
 		})
@@ -110,7 +112,7 @@ const app = new Hono()
 
 		const data = await prisma.category.create({
 			data: {
-				name: values.name.trim(),
+				name: trimName,
 				userId: userMeta.userId,
 			},
 			select: {
