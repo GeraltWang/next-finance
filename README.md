@@ -26,12 +26,82 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Tech Stack 🛠️
+
 - Framework: [`React`](https://react.dev/), [`Next.js`](https://nextjs.org/)
 - Styling: [`Tailwind CSS`](https://tailwindcss.com/)
 - UI [`shadcn/ui`](https://ui.shadcn.com/)
 - ORM: [`Prisma`](https://prisma.io/)
 - API: [`hono`](https://hono.dev/)
 - Authentication: [`Clerk`](https://clerk.com/)
+
+## Exposed API Documentation
+
+### Endpoints
+
+All endpoints are prefixed with `/api/expose`.
+All endpoints require a valid `Bearer `<your-pat-token>``token in the`Authorization` header.
+You can generate PAT token in settings page.
+
+#### 1. Get all accounts
+
+**Endpoint:** `/api/expose/accounts`
+**Method:** `GET`
+**Request Headers:**
+
+- `Authorization`: Bearer PAT Token
+
+**Response:**
+
+```json
+{
+	"data": [
+		{
+			"id": "string",
+			"name": "string"
+		}
+	]
+}
+```
+
+#### 2. Get all categories
+
+**Endpoint:** `/api/expose/categories`
+**Method:** `GET`
+**Request Headers:**
+
+- `Authorization`: Bearer PAT Token
+
+**Response:**
+
+```json
+{
+	"data": [
+		{
+			"id": "string",
+			"name": "string"
+		}
+	]
+}
+```
+
+#### 3. Add a new expense
+
+**Endpoint:** `/api/expose/add-expense`
+**Method:** `POST`
+**Request Headers:**
+
+- `Authorization`: Bearer PAT Token
+
+**Request Body:**
+
+```
+{
+  "accountName": "string",
+  "categoryName": "string",
+  "amount": "number",
+  "payee": "string"
+}
+```
 
 ## Learn More 📚
 
