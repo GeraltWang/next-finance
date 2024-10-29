@@ -53,7 +53,7 @@ export const TableColumns: ColumnDef<ResponseType>[] = [
 		},
 		cell: ({ row }) => {
 			const date = row.getValue('date') as Date
-			return <span>{dayjs(date).utc().format('YYYY-MM-DD HH:mm')}</span>
+			return <span>{dayjs(date).utc(true).format('YYYY-MM-DD HH:mm')}</span>
 		},
 	},
 	{
