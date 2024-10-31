@@ -1,15 +1,16 @@
 import { create } from 'zustand'
 import { Table } from '@tanstack/react-table'
+import type { ResponseType } from '@/features/transactions/components/table-columns'
 
-type State<TData> = {
+type State = {
 	ids?: string[]
-	table?: Table<TData>
+	table?: Table<ResponseType>
 	isOpen: boolean
-	onOpen: (ids: string[], table: Table<TData>) => void
+	onOpen: (ids: string[], table: Table<ResponseType>) => void
 	onClose: () => void
 }
 
-export const useOpenEditCategory = create<State<any>>(set => ({
+export const useOpenEditCategory = create<State>()(set => ({
 	ids: undefined,
 	table: undefined,
 	isOpen: false,

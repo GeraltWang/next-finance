@@ -3,24 +3,26 @@ import { DataTablePage } from '@/components/data-table-page'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useBulkDeleteTransactions } from '@/features/transactions/api/use-bulk-delete-transactions'
-import { useGetTransactionsPage } from '@/features/transactions/api/use-get-transactions-page'
-import { useNewTransaction } from '@/features/transactions/hooks/use-new-transaction'
-import { Loader2, Plus } from 'lucide-react'
-import { TableColumns } from '@/features/transactions/components/table-columns'
-import { useState } from 'react'
-import { UploadButton } from '@/features/transactions/components/upload-button'
-import { ImportCard } from '@/features/transactions/components/import-card'
-import { TransactionSchema } from '@/features/transactions/schemas/index'
+
 import { useSelectAccount } from '@/features/accounts/hooks/use-select-account'
-import { toast } from 'sonner'
 import { useBulkCreateTransactions } from '@/features/transactions/api/use-bulk-create-transactions'
-import { z } from 'zod'
-import { Table } from '@tanstack/react-table'
-import { useConfirm } from '@/hooks/use-confirm'
+import { useBulkDeleteTransactions } from '@/features/transactions/api/use-bulk-delete-transactions'
 import { useBulkMarkAsExpense } from '@/features/transactions/api/use-bulk-mark-as-expense'
+import { useGetTransactionsPage } from '@/features/transactions/api/use-get-transactions-page'
+import { ImportCard } from '@/features/transactions/components/import-card'
 import type { ResponseType } from '@/features/transactions/components/table-columns'
+import { TableColumns } from '@/features/transactions/components/table-columns'
+import { UploadButton } from '@/features/transactions/components/upload-button'
+import { useNewTransaction } from '@/features/transactions/hooks/use-new-transaction'
 import { useOpenEditCategory } from '@/features/transactions/hooks/use-open-edit-category'
+import { TransactionSchema } from '@/features/transactions/schemas/index'
+import { useConfirm } from '@/hooks/use-confirm'
+
+import { Table } from '@tanstack/react-table'
+import { Loader2, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { z } from 'zod'
 
 enum VARIANTS {
 	LIST = 'LIST',
@@ -34,7 +36,7 @@ const INITIAL_IMPORT_RESULT = {
 }
 
 const TransactionsPage = () => {
-	const [SelectAccountDialog, confirm] = useSelectAccount()
+	const [SelectAccountDialog, confirm] = useSelectAccount<string>()
 
 	const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST)
 
@@ -61,7 +63,7 @@ const TransactionsPage = () => {
 
 		const dataWithAccount = values.map(value => ({
 			...value,
-			accountId: accountId as string,
+			accountId,
 		}))
 
 		bulkCreateTransactions.mutate(dataWithAccount, {

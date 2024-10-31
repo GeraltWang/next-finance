@@ -12,7 +12,7 @@ import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
 import { CommonSelect } from '@/components/common-select'
 
-export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
+export const useSelectAccount = <T,>(): [() => JSX.Element, () => Promise<T | undefined>] => {
 	const accountQuery = useGetAccounts()
 
 	const accountMutation = useCreateAccount()
@@ -24,17 +24,16 @@ export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 		value: account.id,
 	}))
 
-	const [promise, setPromise] = useState<{ resolve: (value: string | undefined) => void } | null>(
-		null
-	)
+	const [promise, setPromise] = useState<{ resolve: (value: T | undefined) => void } | null>(null)
 
 	// 这里使用 useRef 来保存选择的值, 而不是使用 useState, 因为 useState 变化会导致hooks重新渲染
-	const selectValue = useRef<string>()
+	const selectValue = useRef<T>()
 
-	const confirm = (): Promise<any> =>
-		new Promise((resolve, reject) => {
+	const confirm = (): Promise<T | undefined> => {
+		return new Promise(resolve => {
 			setPromise({ resolve })
 		})
+	}
 
 	const handleClose = () => {
 		setPromise(null)
@@ -62,7 +61,7 @@ export const useSelectAccount = (): [() => JSX.Element, () => Promise<any>] => {
 						options={accountOptions}
 						onCreate={onCreateAccount}
 						onChange={value => {
-							selectValue.current = value
+							selectValue.current = value as T
 						}}
 						disabled={accountQuery.isLoading || accountMutation.isPending}
 						placeholder='Select an account'
