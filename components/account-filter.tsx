@@ -1,6 +1,6 @@
 'use client'
-import qs from 'query-string'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
 	Select,
 	SelectTrigger,
@@ -10,13 +10,13 @@ import {
 } from '@/components/ui/select'
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useGetSummary } from '@/features/summary/api/use-get-summary'
+import { formUrlQuery } from '@/lib/query'
 
 export const AccountFilter = () => {
 	const router = useRouter()
 
-	const path = usePathname()
-
 	const params = useSearchParams()
+
 	const accountId = params.get('accountId') || 'all'
 	const from = params.get('from') || ''
 	const to = params.get('to') || ''
@@ -24,26 +24,17 @@ export const AccountFilter = () => {
 	const { data: accounts, isLoading: isLoadingAccounts } = useGetAccounts()
 
 	const onChange = (newValue: string) => {
-		const query = {
+		const queryParams = {
 			accountId: newValue,
 			from,
 			to,
 		}
 
 		if (newValue === 'all') {
-			query.accountId = ''
+			queryParams.accountId = ''
 		}
 
-		const url = qs.stringifyUrl(
-			{
-				url: path,
-				query,
-			},
-			{
-				skipNull: true,
-				skipEmptyString: true,
-			}
-		)
+		const url = formUrlQuery({ params: params.toString(), queryParams })
 
 		router.push(url)
 	}
