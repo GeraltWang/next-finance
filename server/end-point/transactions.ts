@@ -47,41 +47,47 @@ const app = new Hono()
 				: defaultFrom
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc(true).endOf('day').toDate() : defaultTo
 
-			const data = await prisma.transaction.findMany({
-				select: {
-					id: true,
-					date: true,
-					category: {
-						select: {
-							name: true,
+			let data
+
+			try {
+				data = await prisma.transaction.findMany({
+					select: {
+						id: true,
+						date: true,
+						category: {
+							select: {
+								name: true,
+							},
 						},
-					},
-					categoryId: true,
-					payee: true,
-					amount: true,
-					notes: true,
-					account: {
-						select: {
-							id: true,
-							name: true,
+						categoryId: true,
+						payee: true,
+						amount: true,
+						notes: true,
+						account: {
+							select: {
+								id: true,
+								name: true,
+							},
 						},
+						accountId: true,
 					},
-					accountId: true,
-				},
-				where: {
-					account: {
-						userId: userMeta.userId,
+					where: {
+						account: {
+							userId: userMeta.userId,
+						},
+						date: {
+							gte: startDate,
+							lte: endDate,
+						},
+						...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
 					},
-					date: {
-						gte: startDate,
-						lte: endDate,
+					orderBy: {
+						date: 'asc',
 					},
-					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
-				},
-				orderBy: {
-					date: 'asc',
-				},
-			})
+				})
+			} catch (error) {
+				return c.json({ error: 'Error querying transactions' }, 500)
+			}
 
 			return c.json({ data })
 		}
@@ -94,9 +100,15 @@ const app = new Hono()
 			z.object({
 				from: z.string().optional(),
 				to: z.string().optional(),
-				page: z.string().optional(),
-				pageSize: z.string().optional(),
 				accountId: z.string().optional(),
+				page: z.preprocess(val => {
+					const parsed = parseInt(val as string, 10)
+					return isNaN(parsed) ? undefined : parsed
+				}, z.number().int().positive().optional()),
+				pageSize: z.preprocess(val => {
+					const parsed = parseInt(val as string, 10)
+					return isNaN(parsed) ? undefined : parsed
+				}, z.number().int().positive().optional()),
 			})
 		),
 		async c => {
@@ -127,58 +139,71 @@ const app = new Hono()
 			const skip = (+page - 1) * +pageSize
 			const take = Number(pageSize)
 
-			const totalCount = await prisma.transaction.count({
-				where: {
-					account: {
-						userId: userMeta.userId,
+			let totalCount: number | undefined
+			try {
+				totalCount = await prisma.transaction.count({
+					where: {
+						account: {
+							userId: userMeta.userId,
+						},
+						date: {
+							gte: startDate,
+							lte: endDate,
+						},
+						...(accountId && { accountId }), // 如果 accountId 存在，则添加此条件
 					},
-					date: {
-						gte: startDate,
-						lte: endDate,
-					},
-					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
-				},
-			})
+				})
+			} catch (error) {
+				console.error(error)
+				return c.json({ error: 'Error counting transactions' }, 500)
+			}
 
 			const pageCount = Math.ceil(totalCount / take)
 
-			const data = await prisma.transaction.findMany({
-				select: {
-					id: true,
-					date: true,
-					category: {
-						select: {
-							name: true,
+			let data
+
+			try {
+				data = await prisma.transaction.findMany({
+					select: {
+						id: true,
+						date: true,
+						category: {
+							select: {
+								name: true,
+							},
 						},
-					},
-					categoryId: true,
-					payee: true,
-					amount: true,
-					notes: true,
-					account: {
-						select: {
-							id: true,
-							name: true,
+						categoryId: true,
+						payee: true,
+						amount: true,
+						notes: true,
+						account: {
+							select: {
+								id: true,
+								name: true,
+							},
 						},
+						accountId: true,
 					},
-					accountId: true,
-				},
-				where: {
-					account: {
-						userId: userMeta.userId,
+					where: {
+						account: {
+							userId: userMeta.userId,
+						},
+						date: {
+							gte: startDate,
+							lte: endDate,
+						},
+						...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
 					},
-					date: {
-						gte: startDate,
-						lte: endDate,
+					orderBy: {
+						date: 'asc',
 					},
-					...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
-				},
-				orderBy: {
-					date: 'asc',
-				},
-				skip,
-				take,
-			})
+					skip,
+					take,
+				})
+			} catch (error) {
+				console.error(error)
+				return c.json({ error: 'Error querying transactions' }, 500)
+			}
 
 			return c.json({ data, totalCount, page: Number(page), pageSize: take, pageCount })
 		}

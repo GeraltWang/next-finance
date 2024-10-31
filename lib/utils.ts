@@ -144,3 +144,14 @@ export function formatDateRange(period: Period) {
 
 	return `${from.format('MMM DD, YYYY')}`
 }
+
+/**
+ * 获取有效的数字
+ * @param param
+ * @param defaultValue
+ * @returns
+ */
+export const getValidNumber = (param: string | null, defaultValue: number): number => {
+	const num = Number(param)
+	return Number.isInteger(num) && num > 0 ? num : defaultValue
+}

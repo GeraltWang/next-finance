@@ -38,6 +38,7 @@ import {
 
 import { useConfirm } from '@/hooks/use-confirm'
 import { formUrlQuery } from '@/lib/query'
+import { getValidNumber } from '@/lib/utils'
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
@@ -64,19 +65,18 @@ export function DataTablePage<TData, TValue>({
 
 	const searchParams = useSearchParams()
 
-	const page = searchParams.get('page') ?? '1'
-
-	const size = searchParams.get('pageSize') ?? '10'
+	const page = getValidNumber(searchParams.get('page'), 1)
+	const size = getValidNumber(searchParams.get('pageSize'), 10)
 
 	const [{ pageIndex, pageSize }, setPagination] = useState({
-		pageIndex: Number(page) - 1, //initial page index
-		pageSize: Number(size), //default page size
+		pageIndex: page - 1, //initial page index
+		pageSize: size, //default page size
 	})
 
 	useEffect(() => {
 		setPagination({
-			pageIndex: Number(page) - 1,
-			pageSize: Number(size),
+			pageIndex: page - 1,
+			pageSize: size,
 		})
 	}, [page, size])
 
