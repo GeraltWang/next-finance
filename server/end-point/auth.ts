@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import prisma from '@/lib/prisma'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
-import { currentUser } from '@clerk/nextjs/server'
+import { currentUser, clerkClient } from '@clerk/nextjs/server'
 
 const app = new Hono().get('/', clerkMiddleware(), async c => {
 	const auth = await currentUser()
@@ -17,7 +17,7 @@ const app = new Hono().get('/', clerkMiddleware(), async c => {
 	})
 
 	if (!existingUser) {
-		console.log('------ Syncing new user to our database ------')
+		console.log(`------ Syncing new user to our database clerkId: ${auth.id} ------`)
 		const newUserPayload = {
 			clerkId: auth.id,
 			email: auth.emailAddresses[0].emailAddress,
@@ -27,9 +27,21 @@ const app = new Hono().get('/', clerkMiddleware(), async c => {
 			photo: auth.imageUrl,
 		}
 
-		await prisma.user.create({
+		const newUser = await prisma.user.create({
 			data: newUserPayload,
 		})
+		console.log(
+			`------ Synced new user info -- dbUserId: ${newUser.id}  clerkId: ${auth.id} ------`
+		)
+
+		await clerkClient.users.updateUserMetadata(auth.id, {
+			publicMetadata: {
+				userId: newUser.id,
+			},
+		})
+		console.log(
+			`------ Updated clerk user metadata -- dbUserId: ${newUser.id}  clerkId: ${auth.id} ------`
+		)
 	}
 
 	return c.json({ data: { isSynced: true } })
