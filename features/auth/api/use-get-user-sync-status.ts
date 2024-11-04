@@ -19,6 +19,9 @@ export const useGetUserSyncStatus = () => {
 		refetchInterval: query => {
 			return query.state.data?.isSynced ? false : 1000
 		},
+		retry: failureCount => {
+			return failureCount <= 10
+		},
 	})
 
 	return query

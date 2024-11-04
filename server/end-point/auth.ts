@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import prisma from '@/lib/prisma'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
+import { clerkMiddleware } from '@hono/clerk-auth'
 import { currentUser, clerkClient } from '@clerk/nextjs/server'
 
 const app = new Hono().get('/', clerkMiddleware(), async c => {
@@ -34,7 +34,7 @@ const app = new Hono().get('/', clerkMiddleware(), async c => {
 			`------ Synced new user info -- dbUserId: ${newUser.id}  clerkId: ${auth.id} ------`
 		)
 
-		await clerkClient.users.updateUserMetadata(auth.id, {
+		await clerkClient().users.updateUserMetadata(auth.id, {
 			publicMetadata: {
 				userId: newUser.id,
 			},

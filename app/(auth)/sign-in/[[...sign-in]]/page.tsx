@@ -14,7 +14,7 @@ const SignInPage = () => {
 				</div>
 				<div className='mt-8 flex items-center justify-center'>
 					<ClerkLoaded>
-						<SignIn />
+						<SignIn signUpFallbackRedirectUrl='/welcome' signUpForceRedirectUrl='/welcome' />
 					</ClerkLoaded>
 					<ClerkLoading>
 						<Loader2 size='48' className='animate-spin text-[#2e2a47]' />
