@@ -8,10 +8,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AreaChart, BarChart3, FileSearch, LineChart, Loader2 } from 'lucide-react'
+import { AreaChart, BarChart3, FileSearch, LineChart } from 'lucide-react'
 import { AreaVariant } from '@/components/area-variant'
 import { BarVariant } from '@/components/bar-variant'
 import { LineVariant } from '@/components/line-variant'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 type Props = {
 	data?: { date: string; income: number; expenses: number }[]
@@ -82,7 +83,7 @@ export const ChartLoading = () => {
 			</CardHeader>
 			<CardContent>
 				<div className='flex h-[350px] w-full items-center justify-center'>
-					<Loader2 className='size-6 animate-spin text-slate-300' />
+					<LoadingSpinner />
 				</div>
 			</CardContent>
 		</Card>

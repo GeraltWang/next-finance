@@ -11,6 +11,7 @@ import { useState } from 'react'
 import { PieVariant } from '@/components/pie-variant'
 import { RadarVariant } from '@/components/radar-variant'
 import { RadialVariant } from '@/components/radial-variant'
+import { LoadingSpinner } from '@/components/loading-spinner'
 import { Skeleton } from '@/components/ui/skeleton'
 
 type Props = {
@@ -82,7 +83,7 @@ export const SpendingPieLoading = () => {
 			</CardHeader>
 			<CardContent>
 				<div className='flex h-[350px] w-full items-center justify-center'>
-					<Loader2 className='size-6 animate-spin text-slate-300' />
+					<LoadingSpinner />
 				</div>
 			</CardContent>
 		</Card>

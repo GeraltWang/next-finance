@@ -1,8 +1,10 @@
 'use client'
 import { DataTable } from '@/components/data-table'
+import { LoadingSpinner } from '@/components/loading-spinner'
+
 import { TableColumns } from '@/features/pat/components/table-columns'
 import { useGetPats } from '@/features/pat/api/use-get-pats'
-import { Plus, Loader2 } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { NewPatDialog } from '@/features/pat/components/new-pat-dialog'
@@ -30,7 +32,7 @@ const SettingsPage = () => {
 				</div>
 				<Skeleton className='h-8 w-48' />
 				<div className='flex h-[400px] w-full items-center justify-center'>
-					<Loader2 className='size-6 animate-spin text-slate-300' />
+					<LoadingSpinner />
 				</div>
 			</>
 		)

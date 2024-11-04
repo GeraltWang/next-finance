@@ -1,11 +1,13 @@
 'use client'
 
 import { DataTable } from '@/components/data-table'
+import { LoadingSpinner } from '@/components/loading-spinner'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useNewCategory } from '@/features/categories/hooks/use-new-category'
-import { Loader2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { TableColumns } from '@/features/categories/components/table-columns'
 import { useGetCategories } from '@/features/categories/api/use-get-categories'
 import { useBulkDeleteCategories } from '@/features/categories/api/use-bulk-delete-categories'
@@ -30,7 +32,7 @@ const CategoriesPage = () => {
 					</CardHeader>
 					<CardContent>
 						<div className='flex h-[500px] w-full items-center justify-center'>
-							<Loader2 className='size-6 animate-spin text-slate-300' />
+							<LoadingSpinner />
 						</div>
 					</CardContent>
 				</Card>

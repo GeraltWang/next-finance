@@ -1,5 +1,6 @@
 'use client'
 import { DataTable } from '@/components/data-table'
+import { LoadingSpinner } from '@/components/loading-spinner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -29,7 +30,7 @@ const AccountsPage = () => {
 					</CardHeader>
 					<CardContent>
 						<div className='flex h-[500px] w-full items-center justify-center'>
-							<Loader2 className='size-6 animate-spin text-slate-300' />
+							<LoadingSpinner />
 						</div>
 					</CardContent>
 				</Card>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
-import { Loader2 } from 'lucide-react'
 import { SignUp, ClerkLoading, ClerkLoaded } from '@clerk/nextjs'
+import { LoadingSpinner } from '@/components/loading-spinner'
 
 const SignUpPage = () => {
 	return (
@@ -17,7 +17,7 @@ const SignUpPage = () => {
 						<SignUp fallbackRedirectUrl='/welcome' forceRedirectUrl='/welcome' />
 					</ClerkLoaded>
 					<ClerkLoading>
-						<Loader2 size='48' className='animate-spin text-[#2e2a47]' />
+						<LoadingSpinner />
 					</ClerkLoading>
 				</div>
 			</section>
