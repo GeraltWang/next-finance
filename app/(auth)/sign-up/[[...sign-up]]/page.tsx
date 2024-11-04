@@ -14,7 +14,7 @@ const SignUpPage = () => {
 				</div>
 				<div className='mt-8 flex items-center justify-center'>
 					<ClerkLoaded>
-						<SignUp />
+						<SignUp fallbackRedirectUrl='/welcome' forceRedirectUrl='/welcome' />
 					</ClerkLoaded>
 					<ClerkLoading>
 						<Loader2 size='48' className='animate-spin text-[#2e2a47]' />

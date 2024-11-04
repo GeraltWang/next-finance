@@ -3,6 +3,7 @@ import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
 
 import jwtMiddleware from '@/server/middleware/jwt'
+import auth from '@/server/end-point/auth'
 import accounts from '@/server/end-point/accounts'
 import categories from '@/server/end-point/categories'
 import transactions from '@/server/end-point/transactions'
@@ -19,6 +20,7 @@ const app = new Hono()
 	.use('/expose/*', jwtMiddleware)
 
 const routes = app
+	.route('/auth', auth)
 	.route('/accounts', accounts)
 	.route('/categories', categories)
 	.route('/transactions', transactions)
