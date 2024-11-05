@@ -1,4 +1,3 @@
-'use client'
 import { HeaderBar } from '@/components/header-bar'
 import { CommonFilters } from '@/components/common-filters'
 import { HeaderLogo } from '@/components/header-logo'
@@ -8,7 +7,6 @@ import { ClerkLoaded } from '@clerk/nextjs'
 import { CommonFooter } from '@/components/common-footer'
 import { UserButton } from '@/components/user-button'
 import { SheetProvider } from '@/providers/sheet-provider'
-import { Suspense } from 'react'
 
 const DashboardLayout = ({
 	children,
@@ -30,9 +28,7 @@ const DashboardLayout = ({
 				<WelcomeMsg />
 				<CommonFilters />
 			</HeaderBar>
-			<main className='flex-1 px-3 lg:px-14'>
-				<Suspense>{children}</Suspense>
-			</main>
+			<main className='flex-1 px-3 lg:px-14'>{children}</main>
 			<CommonFooter />
 			<SheetProvider />
 		</div>
