@@ -3,7 +3,8 @@
 import { useGetSummary } from '@/features/summary/api/use-get-summary'
 import { formatDateRange } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
-import { DataCard, DataCardLoading } from '@/components/data-card'
+import { DataCard } from '@/components/data-card'
+import { DataGridFallback } from '@/components/data-grid-fallback'
 import { FaPiggyBank } from 'react-icons/fa'
 import { FaArrowTrendUp, FaArrowTrendDown } from 'react-icons/fa6'
 
@@ -20,13 +21,7 @@ export const DataGrid = () => {
 	})
 
 	if (isLoading) {
-		return (
-			<div className='mb-8 grid grid-cols-1 gap-8 pb-2 lg:grid-cols-3'>
-				<DataCardLoading />
-				<DataCardLoading />
-				<DataCardLoading />
-			</div>
-		)
+		return <DataGridFallback />
 	}
 
 	return (
