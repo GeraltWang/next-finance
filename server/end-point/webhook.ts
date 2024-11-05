@@ -68,7 +68,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 			})
 
 			if (newUser) {
-				await clerkClient.users.updateUserMetadata(id, {
+				const client = await clerkClient()
+				client.users.updateUserMetadata(id, {
 					publicMetadata: {
 						userId: newUser.id,
 					},

@@ -20,7 +20,7 @@ import { TransactionSchema } from '@/features/transactions/schemas/index'
 import { useConfirm } from '@/hooks/use-confirm'
 
 import { Table } from '@tanstack/react-table'
-import { Loader2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { z } from 'zod'

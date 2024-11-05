@@ -7,7 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import { useRef, useState } from 'react'
+import { useRef, useState, type JSX } from 'react'
 import { useGetAccounts } from '@/features/accounts/api/use-get-accounts'
 import { useCreateAccount } from '@/features/accounts/api/use-create-account'
 import { CommonSelect } from '@/components/common-select'
@@ -27,7 +27,7 @@ export const useSelectAccount = <T,>(): [() => JSX.Element, () => Promise<T | un
 	const [promise, setPromise] = useState<{ resolve: (value: T | undefined) => void } | null>(null)
 
 	// 这里使用 useRef 来保存选择的值, 而不是使用 useState, 因为 useState 变化会导致hooks重新渲染
-	const selectValue = useRef<T>()
+	const selectValue = useRef<T>(undefined)
 
 	const confirm = (): Promise<T | undefined> => {
 		return new Promise(resolve => {

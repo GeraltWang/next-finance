@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, type JSX } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'

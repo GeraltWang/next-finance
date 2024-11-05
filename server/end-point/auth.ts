@@ -33,8 +33,8 @@ const app = new Hono().get('/', clerkMiddleware(), async c => {
 		console.log(
 			`------ Synced new user info -- dbUserId: ${newUser.id}  clerkId: ${auth.id} ------`
 		)
-
-		await clerkClient().users.updateUserMetadata(auth.id, {
+		const client = await clerkClient()
+		client.users.updateUserMetadata(auth.id, {
 			publicMetadata: {
 				userId: newUser.id,
 			},
