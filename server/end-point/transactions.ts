@@ -1,12 +1,13 @@
-import prisma from '@/lib/prisma'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
 import { TransactionSchema, TransactionUpdateSchema } from '@/features/transactions/schemas/index'
+import prisma from '@/lib/prisma'
 import { UserMeta } from '@/types'
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
+
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono()
 	.get(
@@ -17,8 +18,6 @@ const app = new Hono()
 			z.object({
 				from: z.string().optional(),
 				to: z.string().optional(),
-				page: z.string().optional(),
-				pageSize: z.string().optional(),
 				accountId: z.string().optional(),
 			})
 		),
@@ -101,14 +100,18 @@ const app = new Hono()
 				from: z.string().optional(),
 				to: z.string().optional(),
 				accountId: z.string().optional(),
-				page: z.preprocess(val => {
-					const parsed = parseInt(val as string, 10)
-					return isNaN(parsed) ? undefined : parsed
-				}, z.number().int().positive().optional()),
-				pageSize: z.preprocess(val => {
-					const parsed = parseInt(val as string, 10)
-					return isNaN(parsed) ? undefined : parsed
-				}, z.number().int().positive().optional()),
+				page: z
+					.string()
+					.transform(val => parseInt(val, 10))
+					.refine(val => !isNaN(val) && val > 0, { message: 'Invalid page number' })
+					.optional()
+					.default('1'),
+				pageSize: z
+					.string()
+					.transform(val => parseInt(val, 10))
+					.refine(val => !isNaN(val) && val > 0, { message: 'Invalid page size' })
+					.optional()
+					.default('10'),
 			})
 		),
 		async c => {
@@ -126,7 +129,15 @@ const app = new Hono()
 				userMeta.userId = user.id
 			}
 
-			const { from, to, page = 1, pageSize = 10, accountId } = c.req.valid('query')
+			const { from, to, page, pageSize, accountId } = c.req.valid('query')
+
+			// 验证日期格式
+			if (from && !dayjs(from, 'YYYY-MM-DD', true).isValid()) {
+				return c.json({ error: 'Invalid from date format' }, 400)
+			}
+			if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
+				return c.json({ error: 'Invalid to date format' }, 400)
+			}
 
 			const defaultTo = dayjs().utc().endOf('day').toDate()
 			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
@@ -136,76 +147,72 @@ const app = new Hono()
 				: defaultFrom
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc(true).endOf('day').toDate() : defaultTo
 
-			const skip = (+page - 1) * +pageSize
+			const skip = (Number(page) - 1) * Number(pageSize)
 			const take = Number(pageSize)
 
-			let totalCount: number | undefined
-			try {
-				totalCount = await prisma.transaction.count({
-					where: {
-						account: {
-							userId: userMeta.userId,
-						},
-						date: {
-							gte: startDate,
-							lte: endDate,
-						},
-						...(accountId && { accountId }), // 如果 accountId 存在，则添加此条件
-					},
-				})
-			} catch (error) {
-				console.error(error)
-				return c.json({ error: 'Error counting transactions' }, 500)
-			}
-
-			const pageCount = Math.ceil(totalCount / take)
-
-			let data
+			let response
 
 			try {
-				data = await prisma.transaction.findMany({
-					select: {
-						id: true,
-						date: true,
-						category: {
-							select: {
-								name: true,
+				const [data, totalCount] = await Promise.all([
+					prisma.transaction.findMany({
+						select: {
+							id: true,
+							date: true,
+							category: {
+								select: {
+									name: true,
+								},
 							},
-						},
-						categoryId: true,
-						payee: true,
-						amount: true,
-						notes: true,
-						account: {
-							select: {
-								id: true,
-								name: true,
+							categoryId: true,
+							payee: true,
+							amount: true,
+							notes: true,
+							account: {
+								select: {
+									id: true,
+									name: true,
+								},
 							},
+							accountId: true,
 						},
-						accountId: true,
-					},
-					where: {
-						account: {
-							userId: userMeta.userId,
+						where: {
+							account: {
+								userId: userMeta.userId,
+							},
+							date: {
+								gte: startDate,
+								lte: endDate,
+							},
+							...(accountId && { accountId }),
 						},
-						date: {
-							gte: startDate,
-							lte: endDate,
+						orderBy: {
+							date: 'asc',
 						},
-						...(accountId && { accountId: accountId }), // 如果 accountId 存在，则添加此条件
-					},
-					orderBy: {
-						date: 'asc',
-					},
-					skip,
-					take,
-				})
-			} catch (error) {
-				console.error(error)
-				return c.json({ error: 'Error querying transactions' }, 500)
-			}
+						skip,
+						take,
+					}),
+					prisma.transaction.count({
+						where: {
+							account: {
+								userId: userMeta.userId,
+							},
+							date: {
+								gte: startDate,
+								lte: endDate,
+							},
+							...(accountId && { accountId }),
+						},
+					}),
+				])
 
-			return c.json({ data, totalCount, page: Number(page), pageSize: take, pageCount })
+				const pageCount = Math.ceil(totalCount / take)
+
+				response = { data, totalCount, page: Number(page), pageSize: take, pageCount }
+			} catch (error) {
+				console.error('Error fetching transactions:', error)
+				return c.json({ error: 'Internal Server Error' }, 500)
+			}
+			return c.json(response)
 		}
 	)
 	.get(

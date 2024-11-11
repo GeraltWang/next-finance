@@ -1,12 +1,13 @@
-import { calculatePercentageChange, fillMissingDays } from '@/lib/utils'
+import { getUserByClerkUserId } from '@/features/auth/actions/user'
+import dayjs from '@/lib/dayjs'
 import prisma from '@/lib/prisma'
+import { calculatePercentageChange } from '@/lib/utils'
 import { UserMeta } from '@/types'
+
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
-import dayjs from '@/lib/dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono().get(
 	'/',
@@ -36,198 +37,151 @@ const app = new Hono().get(
 
 		const { from, to, accountId } = c.req.valid('query')
 
-		const defaultTo = dayjs().utc().endOf('day').toDate()
-		const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
+		// 输入参数验证
+		if (from && !dayjs(from, 'YYYY-MM-DD', true).isValid()) {
+			return c.json({ error: 'Invalid from date format' }, 400)
+		}
+		if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
+			return c.json({ error: 'Invalid to date format' }, 400)
+		}
 
-		const startDate = from ? dayjs(from).utc(true).startOf('day').toDate() : defaultFrom
-		const endDate = to ? dayjs(to).utc(true).endOf('day').toDate() : defaultTo
+		const defaultTo = dayjs().utc().endOf('day')
+		const defaultFrom = defaultTo.clone().subtract(30, 'day').startOf('day')
 
-		const periodLength = dayjs(endDate).diff(startDate, 'day') + 1
-		const lastPeriodStart = dayjs(startDate).subtract(periodLength, 'day').startOf('day').toDate()
-		const lastPeriodEnd = dayjs(endDate).subtract(periodLength, 'day').endOf('day').toDate()
+		const startDate = from ? dayjs(from).utc(true).startOf('day') : defaultFrom
+		const endDate = to ? dayjs(to).utc(true).endOf('day') : defaultTo
+
+		const periodLength = endDate.diff(startDate, 'day') + 1
+		const lastPeriodStart = startDate.clone().subtract(periodLength, 'day').startOf('day')
+		const lastPeriodEnd = endDate.clone().subtract(periodLength, 'day').endOf('day')
 
 		async function fetchFinancialData(
 			userId: string,
-			startDate: Date,
-			endDate: Date,
+			startDate: dayjs.Dayjs,
+			endDate: dayjs.Dayjs,
 			accountId?: string
 		) {
-			const transactions = await prisma.transaction.findMany({
-				where: {
-					account: {
-						userId: userId,
-						...(accountId && { id: accountId }), // 如果 accountId 存在，则添加到查询条件中
-					},
-					date: {
-						gte: startDate,
-						lte: endDate,
-					},
-				},
-				select: {
-					amount: true,
-					category: {
-						select: {
-							name: true,
+			try {
+				const transactions = await prisma.transaction.findMany({
+					where: {
+						account: {
+							userId: userId,
+							...(accountId && { id: accountId }),
+						},
+						date: {
+							gte: startDate.toDate(),
+							lte: endDate.toDate(),
 						},
 					},
-				},
-			})
+					select: {
+						amount: true,
+						date: true,
+						category: {
+							select: {
+								name: true,
+							},
+						},
+					},
+					orderBy: {
+						date: 'asc',
+					},
+				})
 
-			const income = transactions
-				.filter(transaction => transaction.amount >= 0)
-				.reduce((sum, transaction) => sum + Number(transaction.amount), 0)
+				let income = 0
+				let expenses = 0
+				let remaining = 0
+				const categoryMap: Record<string, number> = {}
+				const dateMap: Record<string, { income: number; expenses: number }> = {}
 
-			const expenses = transactions
-				.filter(transaction => transaction.amount < 0)
-				.reduce((sum, transaction) => sum + Number(transaction.amount), 0)
+				transactions.forEach(transaction => {
+					const amount = Number(transaction.amount)
+					remaining += amount
 
-			const remaining = transactions.reduce(
-				(sum, transaction) => sum + Number(transaction.amount),
-				0
-			)
+					if (amount >= 0) {
+						income += amount
+					} else {
+						expenses += amount
+					}
 
-			const categoryMap: { [key: string]: number } = {}
-			transactions.forEach(transaction => {
-				const categoryName = transaction.category?.name || 'Uncategorized'
-				if (!categoryMap[categoryName]) {
-					categoryMap[categoryName] = 0
+					// 分类汇总
+					const categoryName = transaction.category?.name || 'Uncategorized'
+					categoryMap[categoryName] = (categoryMap[categoryName] || 0) + Math.abs(amount)
+
+					// 日期汇总
+					const dateKey = dayjs(transaction.date).format('YYYY-MM-DD')
+					if (!dateMap[dateKey]) {
+						dateMap[dateKey] = { income: 0, expenses: 0 }
+					}
+					if (amount >= 0) {
+						dateMap[dateKey].income += amount
+					} else {
+						dateMap[dateKey].expenses += amount
+					}
+				})
+
+				const categories = Object.entries(categoryMap)
+					.map(([name, amount]) => ({ name, amount }))
+					.sort((a, b) => b.amount - a.amount)
+
+				// 填补缺失的日期
+				const days: {
+					date: string
+					income: number
+					expenses: number
+				}[] = []
+				let currentDate = startDate.clone()
+
+				while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+					const dateStr = currentDate.format('YYYY-MM-DD')
+					days.push({
+						date: dateStr,
+						income: dateMap[dateStr]?.income || 0,
+						expenses: dateMap[dateStr]?.expenses || 0,
+					})
+					currentDate = currentDate.add(1, 'day')
 				}
-				categoryMap[categoryName] += Math.abs(Number(transaction.amount))
-			})
 
-			const categories = Object.entries(categoryMap)
-				.map(([name, amount]) => ({ name, amount }))
-				.sort((a, b) => b.amount - a.amount)
-
-			return {
-				income,
-				expenses,
-				remaining,
-				categories,
+				return {
+					income,
+					expenses,
+					remaining,
+					categories,
+					days,
+				}
+			} catch (error) {
+				console.error('Error fetching financial data:', error)
+				throw error
 			}
 		}
 
-		const current = await fetchFinancialData(userMeta.userId, startDate, endDate, accountId)
-		const last = await fetchFinancialData(
-			userMeta.userId,
-			lastPeriodStart,
-			lastPeriodEnd,
-			accountId
-		)
+		let data
 
-		const incomeChange = calculatePercentageChange(current.income, last.income)
-		const expensesChange = calculatePercentageChange(current.expenses, last.expenses)
-		const remainingChange = calculatePercentageChange(current.remaining, last.remaining)
+		try {
+			const current = await fetchFinancialData(userMeta.userId, startDate, endDate, accountId)
+			const last = await fetchFinancialData(
+				userMeta.userId,
+				lastPeriodStart,
+				lastPeriodEnd,
+				accountId
+			)
 
-		const topCategories = current.categories.slice(0, 3)
-		const otherCategories = current.categories.slice(3)
-		const otherSum = otherCategories.reduce((acc, category) => acc + Number(category.amount), 0)
-		const finalCategories = topCategories.map(category => ({
-			...category,
-			amount: Number(category.amount),
-		}))
+			const incomeChange = calculatePercentageChange(current.income, last.income)
+			const expensesChange = calculatePercentageChange(current.expenses, last.expenses)
+			const remainingChange = calculatePercentageChange(current.remaining, last.remaining)
 
-		if (otherCategories.length > 0) {
-			finalCategories.push({ name: 'Other', amount: otherSum })
-		}
-
-		// const activeDays = await prisma.transaction.groupBy({
-		// 	by: ['date'],
-		// 	where: {
-		// 		account: {
-		// 			userId: userMeta.userId,
-		// 			...(accountId && { id: accountId }), // 如果 accountId 存在，则添加到查询条件中
-		// 		},
-		// 		date: {
-		// 			gte: startDate,
-		// 			lte: endDate,
-		// 		},
-		// 	},
-		// 	_sum: {
-		// 		amount: true,
-		// 	},
-		// 	orderBy: {
-		// 		date: 'asc',
-		// 	},
-		// })
-		const activeDays = await prisma.transaction.findMany({
-			where: {
-				account: {
-					userId: userMeta.userId,
-					...(accountId && { id: accountId }), // 如果 accountId 存在，则添加到查询条件中
-				},
-				date: {
-					gte: startDate,
-					lte: endDate,
-				},
-			},
-			select: {
-				date: true,
-				amount: true,
-			},
-			orderBy: {
-				date: 'asc',
-			},
-		})
-
-		function groupAndSumByDate(data: { amount: number; date: Date }[]) {
-			const groupedData: { [key: string]: number } = {}
-
-			data.forEach(item => {
-				const date = item.date.toISOString().split('T')[0] // 只保留日期部分
-				if (!groupedData[date]) {
-					groupedData[date] = 0
-				}
-				groupedData[date] += item.amount
-			})
-
-			return Object.entries(groupedData).map(([date, amount]) => ({
-				date,
-				income: amount >= 0 ? amount : 0,
-				expenses: amount < 0 ? amount : 0,
+			const topCategories = current.categories.slice(0, 3)
+			const otherCategories = current.categories.slice(3)
+			const otherSum = otherCategories.reduce((acc, category) => acc + category.amount, 0)
+			const finalCategories = topCategories.map(category => ({
+				name: category.name,
+				amount: category.amount,
 			}))
-		}
 
-		// const formatActiveDays = activeDays.map(day => ({
-		// 	...day,
-		// 	date: day.date.toISOString().split('T')[0],
-		// }))
+			if (otherCategories.length > 0) {
+				finalCategories.push({ name: 'Other', amount: otherSum })
+			}
 
-		const activeDaysData = groupAndSumByDate(activeDays)
-
-		// const activeDays = (await prisma.$queryRaw`
-		//         SELECT
-		//             "Transaction".date AS date,
-		//             SUM(CASE WHEN "Transaction".amount >= 0 THEN "Transaction".amount ELSE 0 END) AS income,
-		//             SUM(CASE WHEN "Transaction".amount < 0 THEN "Transaction".amount ELSE 0 END) AS expenses
-		//         FROM "Transaction"
-		//         INNER JOIN "Account" ON "Transaction".account_id = "Account".id
-		//         WHERE
-		//             "Account".user_id = ${userMeta.userId}
-		//             AND "Transaction".date BETWEEN ${startDate} AND ${endDate}
-		//             ${accountId ? Prisma.sql`AND "Transaction".account_id = ${accountId}` : Prisma.empty}
-		//         GROUP BY "Transaction".date
-		//         ORDER BY "Transaction".date ASC
-		//     `) as { date: Date; income: number; expenses: number }[]
-
-		// // BigInt to Number
-		// const activeDaysData = activeDays.map(day => ({
-		// 	...day,
-		// 	income: Number(day.income),
-		// 	expenses: Number(day.expenses),
-		// }))
-
-		// const activeDaysData = activeDays.map(day => ({
-		// 	date: day.date,
-		// 	income: Number(day._sum.amount) >= 0 ? Number(day._sum.amount) : 0,
-		// 	expenses: Number(day._sum.amount) < 0 ? Number(day._sum.amount) : 0,
-		// }))
-
-		// 填补缺失的日期，因为并不是每天都有记录
-		const days = fillMissingDays(activeDaysData, startDate, endDate)
-
-		return c.json({
-			data: {
+			data = {
 				remainingAmount: current.remaining,
 				remainingChange,
 				incomeAmount: current.income,
@@ -235,9 +189,13 @@ const app = new Hono().get(
 				expensesAmount: current.expenses,
 				expensesChange,
 				categories: finalCategories,
-				days,
-			},
-		})
+				days: current.days,
+			}
+		} catch (error) {
+			return c.json({ error: 'Internal Server Error' }, 500)
+		}
+
+		return c.json({ data })
 	}
 )
 
