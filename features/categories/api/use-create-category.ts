@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import categoriesQueryFactory from '@/features/categories/lib/query-factory'
+
 type ResponseType = InferResponseType<typeof client.api.categories.$post>
 
 type RequestType = InferRequestType<typeof client.api.categories.$post>['json']
@@ -24,7 +26,7 @@ export const useCreateCategory = () => {
 		onSuccess: () => {
 			toast.success('Category created successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['categories'],
+				queryKey: categoriesQueryFactory.all(),
 			})
 		},
 		onError: e => {

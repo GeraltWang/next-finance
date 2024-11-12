@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import patsQueryFactory from '@/features/pat/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.pat)[':id']['$delete']>
 
 export const useDeletePat = (id?: string) => {
@@ -23,14 +25,11 @@ export const useDeletePat = (id?: string) => {
 		},
 		onSuccess: () => {
 			toast.success('Personal access token deleted successfully')
-			// queryClient.invalidateQueries({
-			// 	queryKey: ['pat', { id }],
-			// })
 			queryClient.invalidateQueries({
-				queryKey: ['pats'],
+				queryKey: patsQueryFactory.all(),
 			})
 		},
-		onError: (e) => {
+		onError: e => {
 			toast.error(e.message || 'Failed to delete personal access token')
 		},
 	})

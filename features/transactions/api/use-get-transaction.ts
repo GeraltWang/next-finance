@@ -3,10 +3,12 @@ import { client } from '@/lib/hono'
 import { handleErrors } from '@/lib/errors'
 import { convertAmountFromMiliunits } from '@/lib/utils'
 
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+
 export const useGetTransaction = (id?: string) => {
 	const query = useQuery({
 		enabled: !!id,
-		queryKey: ['transaction', { id }],
+		queryKey: transactionsQueryFactory.detail(id),
 		queryFn: async () => {
 			const response = await client.api.transactions[':id'].$get({
 				param: { id },

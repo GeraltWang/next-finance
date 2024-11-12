@@ -4,6 +4,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+import accountsQueryFactory from '@/features/accounts/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.accounts)[':id']['$patch']>
 
 type RequestType = InferRequestType<(typeof client.api.accounts)[':id']['$patch']>['json']
@@ -28,16 +32,16 @@ export const useEditAccount = (id?: string) => {
 			toast.success('Account edited successfully')
 			// 刷新 account 和 accounts 查询
 			queryClient.invalidateQueries({
-				queryKey: ['account', { id }],
+				queryKey: accountsQueryFactory.detail(id),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['accounts'],
+				queryKey: accountsQueryFactory.all(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['transactions'],
+				queryKey: transactionsQueryFactory.page(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['summary'],
+				queryKey: summaryQueryFactory.all(),
 			})
 		},
 		onError: e => {

@@ -4,6 +4,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+import categoriesQueryFactory from '@/features/categories/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.categories)[':id']['$patch']>
 
 type RequestType = InferRequestType<(typeof client.api.categories)[':id']['$patch']>['json']
@@ -27,16 +31,16 @@ export const useEditCategory = (id?: string) => {
 		onSuccess: () => {
 			toast.success('Category edited successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['category', { id }],
+				queryKey: categoriesQueryFactory.detail(id),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['categories'],
+				queryKey: categoriesQueryFactory.all(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['transactions'],
+				queryKey: transactionsQueryFactory.page(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['summary'],
+				queryKey: summaryQueryFactory.all(),
 			})
 		},
 		onError: e => {

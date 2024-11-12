@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
 import { handleErrors } from '@/lib/errors'
 
+import accountsQueryFactory from '@/features/accounts/lib/query-factory'
+
 export const useGetAccounts = () => {
 	const query = useQuery({
-		queryKey: ['accounts'],
+		queryKey: accountsQueryFactory.all(),
 		queryFn: async () => {
 			const response = await client.api.accounts.$get()
 

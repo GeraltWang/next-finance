@@ -4,6 +4,8 @@ import { useSearchParams } from 'next/navigation'
 import { convertAmountFromMiliunits } from '@/lib/utils'
 import { handleErrors } from '@/lib/errors'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+
 export const useGetSummary = () => {
 	const params = useSearchParams()
 	const from = params.get('from') || ''
@@ -12,7 +14,7 @@ export const useGetSummary = () => {
 
 	const query = useQuery({
 		// TODO: Check if params are needed in the queryKey
-		queryKey: ['summary', { from, to, accountId }],
+		queryKey: summaryQueryFactory.all({ from, to, accountId }),
 		queryFn: async () => {
 			const response = await client.api.summary.$get({
 				query: {

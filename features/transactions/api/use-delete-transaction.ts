@@ -4,6 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.transactions)[':id']['$delete']>
 
 export const useDeleteTransaction = (id?: string) => {
@@ -24,13 +27,13 @@ export const useDeleteTransaction = (id?: string) => {
 		onSuccess: () => {
 			toast.success('Transaction deleted successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['transaction', { id }],
+				queryKey: transactionsQueryFactory.detail(id),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['transactions'],
+				queryKey: transactionsQueryFactory.page(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['summary'],
+				queryKey: summaryQueryFactory.all(),
 			})
 		},
 		onError: e => {

@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
 import { handleErrors } from '@/lib/errors'
 
+import patsQueryFactory from '@/features/pat/lib/query-factory'
+
 export const useGetPats = () => {
 	const query = useQuery({
-		queryKey: ['pats'],
+		queryKey: patsQueryFactory.all(),
 		queryFn: async () => {
 			const response = await client.api.pat.$get()
 

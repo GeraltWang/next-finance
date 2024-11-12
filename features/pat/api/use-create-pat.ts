@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import patsQueryFactory from '@/features/pat/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.pat)['generate-pat']['$post']>
 
 type RequestType = InferRequestType<(typeof client.api.pat)['generate-pat']['$post']>['json']
@@ -22,10 +24,10 @@ export const useCreatePat = () => {
 		onSuccess: () => {
 			toast.success('New access token generated')
 			queryClient.invalidateQueries({
-				queryKey: ['pats'],
+				queryKey: patsQueryFactory.all(),
 			})
 		},
-		onError: (error) => {
+		onError: error => {
 			toast.error(error.message || 'Failed to generate access token')
 		},
 	})

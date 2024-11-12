@@ -4,6 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+import categoriesQueryFactory from '@/features/categories/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.categories)['bulk-delete']['$post']>
 
 type RequestType = InferRequestType<(typeof client.api.categories)['bulk-delete']['$post']>['json']
@@ -24,10 +27,10 @@ export const useBulkDeleteCategories = () => {
 		onSuccess: () => {
 			toast.success('Categories deleted successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['categories'],
+				queryKey: categoriesQueryFactory.all(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['summary'],
+				queryKey: summaryQueryFactory.all(),
 			})
 		},
 		onError: e => {

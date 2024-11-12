@@ -2,6 +2,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { QueryProvider } from '@/providers/query-provider'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { zhCN } from '@clerk/localizations'
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from 'next'
@@ -29,6 +30,7 @@ export default function RootLayout({
 					<QueryProvider>
 						<Toaster richColors theme={'system'} />
 						{children}
+						<ReactQueryDevtools initialIsOpen={false} />
 					</QueryProvider>
 					<Analytics />
 					<SpeedInsights />

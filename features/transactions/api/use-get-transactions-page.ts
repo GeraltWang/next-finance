@@ -4,6 +4,8 @@ import { handleErrors } from '@/lib/errors'
 import { useSearchParams } from 'next/navigation'
 import { convertAmountFromMiliunits, getValidNumber } from '@/lib/utils'
 
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+
 export const useGetTransactionsPage = () => {
 	const params = useSearchParams()
 
@@ -15,7 +17,7 @@ export const useGetTransactionsPage = () => {
 	const pageSize = getValidNumber(params.get('pageSize'), 10).toString()
 
 	const query = useQuery({
-		queryKey: ['transactions', { from, to, page, pageSize, accountId }],
+		queryKey: transactionsQueryFactory.page({ from, to, page, pageSize, accountId }),
 		queryFn: async () => {
 			const response = await client.api.transactions['page'].$get({
 				query: {

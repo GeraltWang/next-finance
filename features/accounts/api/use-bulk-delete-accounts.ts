@@ -4,6 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import summaryQueryFactory from '@/features/summary/lib/query-factory'
+import accountsQueryFactory from '@/features/accounts/lib/query-factory'
+
 type ResponseType = InferResponseType<(typeof client.api.accounts)['bulk-delete']['$post']>
 
 type RequestType = InferRequestType<(typeof client.api.accounts)['bulk-delete']['$post']>['json']
@@ -24,10 +27,10 @@ export const useBulkDeleteAccounts = () => {
 		onSuccess: () => {
 			toast.success('Accounts deleted successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['accounts'],
+				queryKey: accountsQueryFactory.all(),
 			})
 			queryClient.invalidateQueries({
-				queryKey: ['summary'],
+				queryKey: summaryQueryFactory.all(),
 			})
 		},
 		onError: e => {

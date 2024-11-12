@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { InferRequestType, InferResponseType } from 'hono'
 import { toast } from 'sonner'
 
+import accountsQueryFactory from '@/features/accounts/lib/query-factory'
+
 type ResponseType = InferResponseType<typeof client.api.accounts.$post>
 
 type RequestType = InferRequestType<typeof client.api.accounts.$post>['json']
@@ -24,7 +26,7 @@ export const useCreateAccount = () => {
 		onSuccess: () => {
 			toast.success('Account created successfully')
 			queryClient.invalidateQueries({
-				queryKey: ['accounts'],
+				queryKey: accountsQueryFactory.all(),
 			})
 		},
 		onError: e => {

@@ -4,6 +4,8 @@ import { handleErrors } from '@/lib/errors'
 import { useSearchParams } from 'next/navigation'
 import { convertAmountFromMiliunits } from '@/lib/utils'
 
+import transactionsQueryFactory from '@/features/transactions/lib/query-factory'
+
 export const useGetTransactions = () => {
 	const params = useSearchParams()
 
@@ -13,7 +15,7 @@ export const useGetTransactions = () => {
 	const accountId = params.get('accountId') || ''
 
 	const query = useQuery({
-		queryKey: ['transactions', { from, to, accountId }],
+		queryKey: transactionsQueryFactory.all({ from, to, accountId }),
 		queryFn: async () => {
 			const response = await client.api.transactions.$get({
 				query: {

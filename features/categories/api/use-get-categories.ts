@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { client } from '@/lib/hono'
 import { handleErrors } from '@/lib/errors'
 
+import categoriesQueryFactory from '@/features/categories/lib/query-factory'
+
 export const useGetCategories = () => {
 	const query = useQuery({
-		queryKey: ['categories'],
+		queryKey: categoriesQueryFactory.all(),
 		queryFn: async () => {
 			const response = await client.api.categories.$get()
 
