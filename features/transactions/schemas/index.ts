@@ -19,7 +19,7 @@ export const TransactionUpdateSchema = z.object({
 })
 
 export const TransactionFastSchema = z.object({
-	amount: z.number().int(),
+	amount: z.number(),
 	payee: z.string(),
 	notes: z.string().nullable().optional(),
 	accountName: z.string(),
