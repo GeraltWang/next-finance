@@ -40,10 +40,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 				: defaultFrom
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc(true).endOf('day').toDate() : defaultTo
 
-			let data
-
 			try {
-				data = await prisma.transaction.findMany({
+				const data = await prisma.transaction.findMany({
 					select: {
 						id: true,
 						date: true,
@@ -78,11 +76,10 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 						date: 'asc',
 					},
 				})
+				return c.json({ data })
 			} catch (error) {
-				return c.json({ error: 'Error querying transactions' }, 500)
+				throw new HTTPException(500, { message: 'Error querying transactions', cause: error })
 			}
-
-			return c.json({ data })
 		}
 	)
 	.get(
@@ -130,8 +127,6 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 			const skip = (Number(page) - 1) * Number(pageSize)
 			const take = Number(pageSize)
-
-			let response
 
 			try {
 				const [data, totalCount] = await Promise.all([
@@ -188,7 +183,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 				const pageCount = Math.ceil(totalCount / take)
 
-				response = { data, totalCount, page: Number(page), pageSize: take, pageCount }
+				const response = { data, totalCount, page: Number(page), pageSize: take, pageCount }
+
 				return c.json(response)
 			} catch (error) {
 				console.error('Error fetching transactions:', error)
@@ -202,7 +198,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		const values = c.req.valid('param')
 
 		if (!values.id) {
-			return c.json({ error: 'Missing Transaction ID' }, 400)
+			throw new HTTPException(400, { message: 'Missing Transaction ID' })
 		}
 
 		const data = await prisma.transaction.findUnique({
@@ -280,7 +276,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			const values = c.req.valid('param')
 
 			if (!values.id) {
-				return c.json({ error: 'Missing Transaction ID' }, 400)
+				throw new HTTPException(400, { message: 'Missing Transaction ID' })
 			}
 
 			const body = c.req.valid('json')

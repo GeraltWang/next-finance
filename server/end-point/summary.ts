@@ -140,8 +140,6 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().get(
 			}
 		}
 
-		let data
-
 		try {
 			const current = await fetchFinancialData(user.id, startDate, endDate, accountId)
 			const last = await fetchFinancialData(user.id, lastPeriodStart, lastPeriodEnd, accountId)
@@ -162,7 +160,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().get(
 				finalCategories.push({ name: 'Other', amount: otherSum })
 			}
 
-			data = {
+			const data = {
 				remainingAmount: current.remaining,
 				remainingChange,
 				incomeAmount: current.income,
@@ -172,8 +170,10 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().get(
 				categories: finalCategories,
 				days: current.days,
 			}
+
 			return c.json({ data })
 		} catch (error) {
+			console.error('Error fetching summary data:', error)
 			throw new HTTPException(500, { message: 'Internal Server Error', cause: error })
 		}
 	}

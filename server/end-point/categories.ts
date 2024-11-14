@@ -147,7 +147,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		const values = c.req.valid('param')
 
 		if (!values.id) {
-			return c.json({ error: 'Missing Category ID' }, 400)
+			throw new HTTPException(400, { message: 'Missing Category ID' })
 		}
 
 		const existingCategory = await prisma.category.findUnique({
@@ -158,7 +158,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (!existingCategory) {
-			return c.json({ error: 'Category not found' }, 404)
+			throw new HTTPException(404, { message: 'Category not found' })
 		}
 
 		const data = await prisma.category.delete({

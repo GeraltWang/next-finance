@@ -14,12 +14,7 @@ import webhook from '@/server/end-point/webhook'
 import pat from '@/server/end-point/pat'
 import expose from '@/server/end-point/expose'
 
-const app = new Hono()
-	.basePath('/api')
-	.use(logger())
-	.use('/pat/*', cors())
-	.use('/expose/*', cors())
-	.use('/expose/*', jwtMiddleware)
+const app = new Hono().basePath('/api').use(logger()).use('/expose/*', cors(), jwtMiddleware)
 
 // 自定义中间件，根据路径决定是否调用 authMiddleware
 app.use('*', async (c, next) => {
@@ -45,7 +40,6 @@ app.onError((err, c) => {
 			{
 				error: 'Server Error',
 				message: err.message,
-				type: 'HTTPException',
 			},
 			err.status
 		)
@@ -54,7 +48,6 @@ app.onError((err, c) => {
 			{
 				error: 'Unknown Error',
 				message: 'An unexpected error occurred',
-				type: 'UnknownError',
 			},
 			500
 		)

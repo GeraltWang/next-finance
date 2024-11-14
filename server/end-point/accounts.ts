@@ -4,6 +4,7 @@ import type { Bindings, Variables } from '@/server/env'
 
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
@@ -19,6 +20,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 				userId: user.id,
 			},
 		})
+
 		return c.json({ data })
 	})
 	.get('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
@@ -27,7 +29,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		const values = c.req.valid('param')
 
 		if (!values.id) {
-			return c.json({ error: 'Missing Account ID' }, 400)
+			throw new HTTPException(400, { message: 'Missing Account ID' })
 		}
 
 		const data = await prisma.account.findUnique({
@@ -42,7 +44,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (!data) {
-			return c.json({ error: 'Account not found' }, 404)
+			throw new HTTPException(404, { message: 'Account not found' })
 		}
 
 		return c.json({ data })
@@ -62,7 +64,9 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (existingAccount) {
-			return c.json({ error: `Account with name '${existingAccount.name}' already exists` }, 400)
+			throw new HTTPException(400, {
+				message: `Account with name '${existingAccount.name}' already exists`,
+			})
 		}
 
 		const data = await prisma.account.create({
@@ -104,7 +108,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			const values = c.req.valid('param')
 
 			if (!values.id) {
-				return c.json({ error: 'Missing Account ID' }, 400)
+				throw new HTTPException(400, { message: 'Missing Account ID' })
 			}
 
 			const body = c.req.valid('json')
@@ -117,7 +121,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			})
 
 			if (!existingAccount) {
-				return c.json({ error: 'Account not found' }, 404)
+				throw new HTTPException(404, { message: 'Account not found' })
 			}
 
 			const data = await prisma.account.update({
@@ -141,7 +145,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		const values = c.req.valid('param')
 
 		if (!values.id) {
-			return c.json({ error: 'Missing Account ID' }, 400)
+			throw new HTTPException(400, { message: 'Missing Account ID' })
 		}
 
 		const existingAccount = await prisma.account.findUnique({
@@ -152,7 +156,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (!existingAccount) {
-			return c.json({ error: 'Account not found' }, 404)
+			throw new HTTPException(404, { message: 'Account not found' })
 		}
 
 		const data = await prisma.account.delete({
