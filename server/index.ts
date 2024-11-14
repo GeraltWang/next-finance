@@ -1,7 +1,9 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
+import { HTTPException } from 'hono/http-exception'
 
+import authMiddleware from '@/server/middleware/auth'
 import jwtMiddleware from '@/server/middleware/jwt'
 import auth from '@/server/end-point/auth'
 import accounts from '@/server/end-point/accounts'
@@ -18,6 +20,46 @@ const app = new Hono()
 	.use('/pat/*', cors())
 	.use('/expose/*', cors())
 	.use('/expose/*', jwtMiddleware)
+
+// 自定义中间件，根据路径决定是否调用 authMiddleware
+app.use('*', async (c, next) => {
+	const path = c.req.path
+
+	const skipAuth =
+		path.startsWith('/api/expose') ||
+		path.startsWith('/api/webhook') ||
+		path.startsWith('/api/auth')
+
+	if (skipAuth) {
+		// skip authMiddleware
+		await next()
+	} else {
+		// authMiddleware
+		await authMiddleware(c, next)
+	}
+})
+
+app.onError((err, c) => {
+	if (err instanceof HTTPException) {
+		return c.json(
+			{
+				error: 'Server Error',
+				message: err.message,
+				type: 'HTTPException',
+			},
+			err.status
+		)
+	} else {
+		return c.json(
+			{
+				error: 'Unknown Error',
+				message: 'An unexpected error occurred',
+				type: 'UnknownError',
+			},
+			500
+		)
+	}
+})
 
 const routes = app
 	.route('/auth', auth)

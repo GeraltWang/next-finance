@@ -1,9 +1,8 @@
 import { Hono } from 'hono'
 import prisma from '@/lib/prisma'
-import { clerkMiddleware } from '@hono/clerk-auth'
 import { currentUser, clerkClient } from '@clerk/nextjs/server'
 
-const app = new Hono().get('/', clerkMiddleware(), async c => {
+const app = new Hono().get('/', async c => {
 	const auth = await currentUser()
 
 	if (!auth) {

@@ -1,12 +1,13 @@
+import prisma from '@/lib/prisma'
+import type { Bindings, Variables } from '@/server/env'
+
+import { clerkClient, WebhookEvent } from '@clerk/nextjs/server'
+import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
-import type { Bindings, Variables } from '@/server/env'
-import { zValidator } from '@hono/zod-validator'
-import { z } from 'zod'
-import { WebhookEvent } from '@clerk/nextjs/server'
-import { clerkClient } from '@clerk/nextjs/server'
+import { HTTPException } from 'hono/http-exception'
 import { Webhook } from 'svix'
-import prisma from '@/lib/prisma'
+import { z } from 'zod'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 	'/clerk',
@@ -23,10 +24,6 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 		// const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
 		const { WEBHOOK_SECRET } = env(c)
 
-		if (!WEBHOOK_SECRET) {
-			throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
-		}
-
 		const header = c.req.valid('header')
 
 		const body = await c.req.json()
@@ -40,16 +37,11 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 		try {
 			evt = wh.verify(JSON.stringify(body), header) as WebhookEvent
 		} catch (err) {
-			console.error('Error verifying webhook:', err)
-			return c.json({ error: 'Error verifying webhook' }, 400)
+			console.log('Error verifying webhook:', err)
+			throw new HTTPException(400, { message: 'Error occured' })
 		}
 
-		// Get the ID and type
-		const { id } = evt.data
 		const eventType = evt.type
-
-		console.log(`Webhook with an ID of ${id} and type of ${eventType}`)
-		console.log('Webhook body:', JSON.stringify(body))
 
 		if (eventType === 'user.created') {
 			const { id, email_addresses, image_url, first_name, last_name, username } = evt.data
@@ -96,7 +88,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 			})
 
 			if (!existingUser) {
-				return c.json({ error: 'User not found' }, 404)
+				throw new HTTPException(404, { message: 'User not found' })
 			}
 
 			const updatedUser = await prisma.user.update({
@@ -119,7 +111,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 			})
 
 			if (!existingUser) {
-				return c.json({ error: 'User not found' }, 404)
+				throw new HTTPException(404, { message: 'User not found' })
 			}
 
 			const deletedUser = await prisma.user.delete({

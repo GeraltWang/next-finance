@@ -1,6 +1,10 @@
 import type { JwtVariables } from 'hono/jwt'
+import type { User } from '@prisma/client'
 
-export type Variables = JwtVariables<{ id: string; email: string }>
+export type Variables = {
+	JWT: JwtVariables<Pick<User, 'id' | 'email'>>['jwtPayload']
+	USER: Pick<User, 'id' | 'email'>
+}
 
 /**
  * Define your environment variables here

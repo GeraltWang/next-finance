@@ -1,18 +1,16 @@
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 import { TransactionSchema, TransactionUpdateSchema } from '@/features/transactions/schemas/index'
 import prisma from '@/lib/prisma'
-import { UserMeta } from '@/types'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
+import type { Bindings, Variables } from '@/server/env'
 
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { z } from 'zod'
+import { HTTPException } from 'hono/http-exception'
 
-const app = new Hono()
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.get(
 		'/',
-		clerkMiddleware(),
 		zValidator(
 			'query',
 			z.object({
@@ -22,21 +20,17 @@ const app = new Hono()
 			})
 		),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const { from, to, accountId } = c.req.valid('query')
+
+			// 验证日期格式
+			if (from && !dayjs(from, 'YYYY-MM-DD', true).isValid()) {
+				throw new HTTPException(400, { message: 'Invalid from date format' })
+			}
+			if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
+				throw new HTTPException(400, { message: 'invalid to date format' })
+			}
 
 			const defaultTo = dayjs().utc().endOf('day').toDate()
 			const defaultFrom = dayjs(defaultTo).utc().subtract(30, 'day').startOf('day').toDate()
@@ -72,7 +66,7 @@ const app = new Hono()
 					},
 					where: {
 						account: {
-							userId: userMeta.userId,
+							userId: user.id,
 						},
 						date: {
 							gte: startDate,
@@ -93,7 +87,6 @@ const app = new Hono()
 	)
 	.get(
 		'/page',
-		clerkMiddleware(),
 		zValidator(
 			'query',
 			z.object({
@@ -115,28 +108,16 @@ const app = new Hono()
 			})
 		),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const { from, to, page, pageSize, accountId } = c.req.valid('query')
 
 			// 验证日期格式
 			if (from && !dayjs(from, 'YYYY-MM-DD', true).isValid()) {
-				return c.json({ error: 'Invalid from date format' }, 400)
+				throw new HTTPException(400, { message: 'Invalid from date format' })
 			}
 			if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
-				return c.json({ error: 'Invalid to date format' }, 400)
+				throw new HTTPException(400, { message: 'invalid to date format' })
 			}
 
 			const defaultTo = dayjs().utc().endOf('day').toDate()
@@ -177,7 +158,7 @@ const app = new Hono()
 						},
 						where: {
 							account: {
-								userId: userMeta.userId,
+								userId: user.id,
 							},
 							date: {
 								gte: startDate,
@@ -194,7 +175,7 @@ const app = new Hono()
 					prisma.transaction.count({
 						where: {
 							account: {
-								userId: userMeta.userId,
+								userId: user.id,
 							},
 							date: {
 								gte: startDate,
@@ -208,78 +189,47 @@ const app = new Hono()
 				const pageCount = Math.ceil(totalCount / take)
 
 				response = { data, totalCount, page: Number(page), pageSize: take, pageCount }
+				return c.json(response)
 			} catch (error) {
 				console.error('Error fetching transactions:', error)
-				return c.json({ error: 'Internal Server Error' }, 500)
+				throw new HTTPException(500, { message: 'Error querying transactions', cause: error })
 			}
-			return c.json(response)
 		}
 	)
-	.get(
-		'/:id',
-		clerkMiddleware(),
-		zValidator('param', z.object({ id: z.string().optional() })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.get('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('param')
 
-			const values = c.req.valid('param')
+		if (!values.id) {
+			return c.json({ error: 'Missing Transaction ID' }, 400)
+		}
 
-			if (!values.id) {
-				return c.json({ error: 'Missing Transaction ID' }, 400)
-			}
-
-			const data = await prisma.transaction.findUnique({
-				select: {
-					id: true,
-					date: true,
-					categoryId: true,
-					payee: true,
-					amount: true,
-					notes: true,
-					accountId: true,
+		const data = await prisma.transaction.findUnique({
+			select: {
+				id: true,
+				date: true,
+				categoryId: true,
+				payee: true,
+				amount: true,
+				notes: true,
+				accountId: true,
+			},
+			where: {
+				id: values.id,
+				account: {
+					userId: user.id,
 				},
-				where: {
-					id: values.id,
-					account: {
-						userId: userMeta.userId,
-					},
-				},
-			})
+			},
+		})
 
-			if (!data) {
-				return c.json({ error: 'Transaction not found' }, 404)
-			}
-
-			return c.json({ data })
-		}
-	)
-	.post('/', clerkMiddleware(), zValidator('json', TransactionSchema), async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
+		if (!data) {
+			throw new HTTPException(404, { message: 'Transaction not found' })
 		}
 
+		return c.json({ data })
+	})
+	.post('/', zValidator('json', TransactionSchema), async c => {
 		const values = c.req.valid('json')
 
 		const data = await prisma.transaction.create({
@@ -293,88 +243,39 @@ const app = new Hono()
 
 		return c.json({ data })
 	})
-	.post(
-		'/bulk-create',
-		clerkMiddleware(),
-		zValidator('json', z.array(TransactionSchema)),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.post('/bulk-create', zValidator('json', z.array(TransactionSchema)), async c => {
+		const values = c.req.valid('json')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const data = await prisma.transaction.createMany({
+			data: values,
+		})
 
-			const values = c.req.valid('json')
+		return c.json({ data: data.count })
+	})
+	.post('/bulk-delete', zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
+		const user = c.get('USER')
 
-			const data = await prisma.transaction.createMany({
-				data: values,
-			})
+		const values = c.req.valid('json')
 
-			return c.json({ data: data.count })
-		}
-	)
-	.post(
-		'/bulk-delete',
-		clerkMiddleware(),
-		zValidator('json', z.object({ ids: z.array(z.string()) })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
-
-			const values = c.req.valid('json')
-
-			await prisma.transaction.deleteMany({
-				where: {
-					id: {
-						in: values.ids,
-					},
-					account: {
-						userId: userMeta.userId,
-					},
+		await prisma.transaction.deleteMany({
+			where: {
+				id: {
+					in: values.ids,
 				},
-			})
+				account: {
+					userId: user.id,
+				},
+			},
+		})
 
-			return c.json({ data: values.ids })
-		}
-	)
+		return c.json({ data: values.ids })
+	})
 	.patch(
 		'/:id',
-		clerkMiddleware(),
 		zValidator('param', z.object({ id: z.string().optional() })),
 		zValidator('json', TransactionSchema),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const values = c.req.valid('param')
 
@@ -388,13 +289,13 @@ const app = new Hono()
 				where: {
 					id: values.id,
 					account: {
-						userId: userMeta.userId,
+						userId: user.id,
 					},
 				},
 			})
 
 			if (!existingData) {
-				return c.json({ error: 'Transaction not found' }, 404)
+				throw new HTTPException(404, { message: 'Transaction not found' })
 			}
 
 			const data = await prisma.transaction.update({
@@ -412,22 +313,9 @@ const app = new Hono()
 	)
 	.post(
 		'/bulk-edit',
-		clerkMiddleware(),
 		zValidator('json', z.object({ ids: z.array(z.string()), data: TransactionUpdateSchema })),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const values = c.req.valid('json')
 
@@ -437,7 +325,7 @@ const app = new Hono()
 						in: values.ids,
 					},
 					account: {
-						userId: userMeta.userId,
+						userId: user.id,
 					},
 				},
 			})
@@ -450,7 +338,7 @@ const app = new Hono()
 						in: existingIds,
 					},
 					account: {
-						userId: userMeta.userId,
+						userId: user.id,
 					},
 				},
 				data: values.data,
@@ -461,22 +349,9 @@ const app = new Hono()
 	)
 	.post(
 		'/bulk-mark-as-expense',
-		clerkMiddleware(),
 		zValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const values = c.req.valid('json')
 
@@ -486,7 +361,7 @@ const app = new Hono()
 						in: values.ids,
 					},
 					account: {
-						userId: userMeta.userId,
+						userId: user.id,
 					},
 					amount: {
 						gt: 0,
@@ -502,7 +377,7 @@ const app = new Hono()
 						in: positiveIds,
 					},
 					account: {
-						userId: userMeta.userId,
+						userId: user.id,
 					},
 				},
 				data: {
@@ -515,58 +390,41 @@ const app = new Hono()
 			return c.json({ data: positiveIds })
 		}
 	)
-	.delete(
-		'/:id',
-		clerkMiddleware(),
-		zValidator('param', z.object({ id: z.string().optional() })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('param')
 
-			const values = c.req.valid('param')
-
-			if (!values.id) {
-				return c.json({ error: 'Missing Transaction ID' }, 400)
-			}
-
-			const existingData = await prisma.transaction.findUnique({
-				where: {
-					id: values.id,
-					account: {
-						userId: userMeta.userId,
-					},
-				},
-			})
-
-			if (!existingData) {
-				return c.json({ error: 'Transaction not found' }, 404)
-			}
-
-			const data = await prisma.transaction.delete({
-				where: {
-					id: values.id,
-					account: {
-						userId: userMeta.userId,
-					},
-				},
-				select: {
-					id: true,
-				},
-			})
-
-			return c.json({ data })
+		if (!values.id) {
+			throw new HTTPException(400, { message: 'Missing Transaction ID' })
 		}
-	)
+
+		const existingData = await prisma.transaction.findUnique({
+			where: {
+				id: values.id,
+				account: {
+					userId: user.id,
+				},
+			},
+		})
+
+		if (!existingData) {
+			throw new HTTPException(404, { message: 'Transaction not found' })
+		}
+
+		const data = await prisma.transaction.delete({
+			where: {
+				id: values.id,
+				account: {
+					userId: user.id,
+				},
+			},
+			select: {
+				id: true,
+			},
+		})
+
+		return c.json({ data })
+	})
 
 export default app

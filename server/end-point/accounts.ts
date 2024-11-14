@@ -1,27 +1,14 @@
-import prisma from '@/lib/prisma'
 import { AccountSchema } from '@/features/accounts/schemas/index'
-import { UserMeta } from '@/types'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
+import prisma from '@/lib/prisma'
+import type { Bindings, Variables } from '@/server/env'
+
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
-const app = new Hono()
-	.get('/', clerkMiddleware(), async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
-		}
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
+	.get('/', async c => {
+		const user = c.get('USER')
 
 		const data = await prisma.account.findMany({
 			select: {
@@ -29,68 +16,39 @@ const app = new Hono()
 				name: true,
 			},
 			where: {
-				userId: userMeta.userId,
+				userId: user.id,
 			},
 		})
 		return c.json({ data })
 	})
-	.get(
-		'/:id',
-		clerkMiddleware(),
-		zValidator('param', z.object({ id: z.string().optional() })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.get('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('param')
 
-			const values = c.req.valid('param')
-
-			if (!values.id) {
-				return c.json({ error: 'Missing Account ID' }, 400)
-			}
-
-			const data = await prisma.account.findUnique({
-				where: {
-					id: values.id,
-					userId: userMeta.userId,
-				},
-				select: {
-					id: true,
-					name: true,
-				},
-			})
-
-			if (!data) {
-				return c.json({ error: 'Account not found' }, 404)
-			}
-
-			return c.json({ data })
+		if (!values.id) {
+			return c.json({ error: 'Missing Account ID' }, 400)
 		}
-	)
-	.post('/', clerkMiddleware(), zValidator('json', AccountSchema), async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
 
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
+		const data = await prisma.account.findUnique({
+			where: {
+				id: values.id,
+				userId: user.id,
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		})
+
+		if (!data) {
+			return c.json({ error: 'Account not found' }, 404)
 		}
+
+		return c.json({ data })
+	})
+	.post('/', zValidator('json', AccountSchema), async c => {
+		const user = c.get('USER')
 
 		const values = c.req.valid('json')
 
@@ -99,7 +57,7 @@ const app = new Hono()
 		const existingAccount = await prisma.account.findFirst({
 			where: {
 				name: trimName,
-				userId: userMeta.userId,
+				userId: user.id,
 			},
 		})
 
@@ -110,7 +68,7 @@ const app = new Hono()
 		const data = await prisma.account.create({
 			data: {
 				name: trimName,
-				userId: userMeta.userId,
+				userId: user.id,
 			},
 			select: {
 				id: true,
@@ -120,58 +78,28 @@ const app = new Hono()
 
 		return c.json({ data })
 	})
-	.post(
-		'/bulk-delete',
-		clerkMiddleware(),
-		zValidator('json', z.object({ ids: z.array(z.string()) })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.post('/bulk-delete', zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('json')
 
-			const values = c.req.valid('json')
-
-			await prisma.account.deleteMany({
-				where: {
-					id: {
-						in: values.ids,
-					},
-					userId: userMeta.userId,
+		await prisma.account.deleteMany({
+			where: {
+				id: {
+					in: values.ids,
 				},
-			})
+				userId: user.id,
+			},
+		})
 
-			return c.json({ data: values.ids })
-		}
-	)
+		return c.json({ data: values.ids })
+	})
 	.patch(
 		'/:id',
-		clerkMiddleware(),
 		zValidator('param', z.object({ id: z.string().optional() })),
 		zValidator('json', AccountSchema),
 		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+			const user = c.get('USER')
 
 			const values = c.req.valid('param')
 
@@ -184,7 +112,7 @@ const app = new Hono()
 			const existingAccount = await prisma.account.findUnique({
 				where: {
 					id: values.id,
-					userId: userMeta.userId,
+					userId: user.id,
 				},
 			})
 
@@ -195,7 +123,7 @@ const app = new Hono()
 			const data = await prisma.account.update({
 				where: {
 					id: values.id,
-					userId: userMeta.userId,
+					userId: user.id,
 				},
 				data: body,
 				select: {
@@ -207,54 +135,37 @@ const app = new Hono()
 			return c.json({ data })
 		}
 	)
-	.delete(
-		'/:id',
-		clerkMiddleware(),
-		zValidator('param', z.object({ id: z.string().optional() })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('param')
 
-			const values = c.req.valid('param')
-
-			if (!values.id) {
-				return c.json({ error: 'Missing Account ID' }, 400)
-			}
-
-			const existingAccount = await prisma.account.findUnique({
-				where: {
-					id: values.id,
-					userId: userMeta.userId,
-				},
-			})
-
-			if (!existingAccount) {
-				return c.json({ error: 'Account not found' }, 404)
-			}
-
-			const data = await prisma.account.delete({
-				where: {
-					id: values.id,
-					userId: userMeta.userId,
-				},
-				select: {
-					id: true,
-				},
-			})
-
-			return c.json({ data })
+		if (!values.id) {
+			return c.json({ error: 'Missing Account ID' }, 400)
 		}
-	)
+
+		const existingAccount = await prisma.account.findUnique({
+			where: {
+				id: values.id,
+				userId: user.id,
+			},
+		})
+
+		if (!existingAccount) {
+			return c.json({ error: 'Account not found' }, 404)
+		}
+
+		const data = await prisma.account.delete({
+			where: {
+				id: values.id,
+				userId: user.id,
+			},
+			select: {
+				id: true,
+			},
+		})
+
+		return c.json({ data })
+	})
 
 export default app

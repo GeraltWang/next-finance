@@ -1,17 +1,15 @@
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 import dayjs from '@/lib/dayjs'
 import prisma from '@/lib/prisma'
 import { calculatePercentageChange } from '@/lib/utils'
-import { UserMeta } from '@/types'
+import type { Bindings, Variables } from '@/server/env'
 
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
-const app = new Hono().get(
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().get(
 	'/',
-	clerkMiddleware(),
 	zValidator(
 		'query',
 		z.object({
@@ -21,28 +19,16 @@ const app = new Hono().get(
 		})
 	),
 	async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
-		}
+		const user = c.get('USER')
 
 		const { from, to, accountId } = c.req.valid('query')
 
 		// 输入参数验证
 		if (from && !dayjs(from, 'YYYY-MM-DD', true).isValid()) {
-			return c.json({ error: 'Invalid from date format' }, 400)
+			throw new HTTPException(400, { message: 'Invalid from date format' })
 		}
 		if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
-			return c.json({ error: 'Invalid to date format' }, 400)
+			throw new HTTPException(400, { message: 'Invalid to date format' })
 		}
 
 		const defaultTo = dayjs().utc().endOf('day')
@@ -157,13 +143,8 @@ const app = new Hono().get(
 		let data
 
 		try {
-			const current = await fetchFinancialData(userMeta.userId, startDate, endDate, accountId)
-			const last = await fetchFinancialData(
-				userMeta.userId,
-				lastPeriodStart,
-				lastPeriodEnd,
-				accountId
-			)
+			const current = await fetchFinancialData(user.id, startDate, endDate, accountId)
+			const last = await fetchFinancialData(user.id, lastPeriodStart, lastPeriodEnd, accountId)
 
 			const incomeChange = calculatePercentageChange(current.income, last.income)
 			const expensesChange = calculatePercentageChange(current.expenses, last.expenses)
@@ -191,11 +172,10 @@ const app = new Hono().get(
 				categories: finalCategories,
 				days: current.days,
 			}
+			return c.json({ data })
 		} catch (error) {
-			return c.json({ error: 'Internal Server Error' }, 500)
+			throw new HTTPException(500, { message: 'Internal Server Error', cause: error })
 		}
-
-		return c.json({ data })
 	}
 )
 

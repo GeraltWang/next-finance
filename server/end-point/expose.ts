@@ -1,19 +1,19 @@
-import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
-import type { Bindings, Variables } from '@/server/env'
+import { TransactionFastSchema } from '@/features/transactions/schemas'
 import prisma from '@/lib/prisma'
 import { convertAmountToMiliunits } from '@/lib/utils'
-import { TransactionFastSchema } from '@/features/transactions/schemas'
+import type { Bindings, Variables } from '@/server/env'
+
+import { zValidator } from '@hono/zod-validator'
+import { Hono } from 'hono'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.get('/', async c => {
-		const token = c.req.header('Authorization')
-		const user = c.get('jwtPayload')
+		const user = c.get('JWT')
 
-		return c.json({ data: { token, user: user }, message: 'Hello from exposed api' })
+		return c.json({ data: { user }, message: 'Hello from exposed api' })
 	})
 	.get('/accounts', async c => {
-		const { id } = c.get('jwtPayload')
+		const { id } = c.get('JWT')
 
 		const accounts = await prisma.account.findMany({
 			where: {
@@ -28,7 +28,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		return c.json({ data: accounts })
 	})
 	.get('/categories', async c => {
-		const { id } = c.get('jwtPayload')
+		const { id } = c.get('JWT')
 
 		const categories = await prisma.category.findMany({
 			where: {
@@ -45,19 +45,19 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.post('/add-expense', zValidator('json', TransactionFastSchema), async c => {
 		const values = c.req.valid('json')
 
-		const user = c.get('jwtPayload')
+		const { id } = c.get('JWT')
 
 		const existingAccount = await prisma.account.findFirst({
 			where: {
 				name: values.accountName,
-				userId: user.id,
+				userId: id,
 			},
 		})
 
 		const existingCategory = await prisma.category.findFirst({
 			where: {
 				name: values.categoryName,
-				userId: user.id,
+				userId: id,
 			},
 		})
 
@@ -79,7 +79,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			},
 		})
 
-		return c.json({ data: { uId: user.id, tId: created.id }, message: 'expense created' })
+		return c.json({ data: { uId: id, tId: created.id }, message: 'expense created' })
 	})
 
 export default app

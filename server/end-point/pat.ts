@@ -1,68 +1,34 @@
-import { Hono } from 'hono'
-import type { Bindings, Variables } from '@/server/env'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
-import { sign as signJwt } from 'hono/jwt'
-import { UserMeta } from '@/types'
-import prisma from '@/lib/prisma'
-import { zValidator } from '@hono/zod-validator'
 import { PatSchema } from '@/features/pat/schemas/index'
+import prisma from '@/lib/prisma'
+import type { Bindings, Variables } from '@/server/env'
+
+import { zValidator } from '@hono/zod-validator'
+import { Hono } from 'hono'
+import { env } from 'hono/adapter'
+import { HTTPException } from 'hono/http-exception'
+import { sign as signJwt } from 'hono/jwt'
 import { z } from 'zod'
-import { getUserByClerkUserId } from '@/features/auth/actions/user'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
-	.get('/', clerkMiddleware(), async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
-		}
-
-		const existingUser = await prisma.user.findUnique({
-			where: {
-				id: userMeta.userId,
-			},
-		})
-
-		if (!existingUser) {
-			return c.json({ error: 'User does not exist' }, 401)
-		}
+	.get('/', async c => {
+		const user = c.get('USER')
 
 		const pats = await prisma.personalAccessToken.findMany({
 			where: {
-				userId: existingUser.id,
+				userId: user.id,
 			},
 		})
 
 		return c.json({ data: pats })
 	})
-	.post('/generate-pat', clerkMiddleware(), zValidator('json', PatSchema), async c => {
-		const auth = getAuth(c)
-		if (!auth?.userId) {
-			return c.json({ error: 'Unauthorized' }, 401)
-		}
-		const userMeta = auth?.sessionClaims?.userMeta as UserMeta
-
-		if (!userMeta?.userId) {
-			const user = await getUserByClerkUserId(auth.userId)
-			if (!user) {
-				return c.json({ error: 'User not found' }, 401)
-			}
-			userMeta.userId = user.id
-		}
+	.post('/generate-pat', zValidator('json', PatSchema), async c => {
+		const user = c.get('USER')
 
 		const values = c.req.valid('json')
 
 		const existingUser = await prisma.user.findUnique({
 			where: {
-				id: userMeta.userId,
+				id: user.id,
 			},
 			select: {
 				id: true,
@@ -71,12 +37,12 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (!existingUser) {
-			return c.json({ error: 'User does not exist' }, 401)
+			throw new HTTPException(401, { message: 'User does not exist' })
 		}
 
 		const payload = existingUser
 
-		const JWT_SECRET = c.env.JWT_SECRET
+		const { JWT_SECRET } = env(c)
 
 		const token = await signJwt(payload, JWT_SECRET)
 
@@ -88,7 +54,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 		})
 
 		if (duplicateName) {
-			return c.json({ error: 'Pat with this name already exists' }, 400)
+			throw new HTTPException(400, { message: 'PAT with this name already exists' })
 		}
 
 		await prisma.personalAccessToken.create({
@@ -102,61 +68,44 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data: { token } })
 	})
-	.delete(
-		'/:id',
-		clerkMiddleware(),
-		zValidator('param', z.object({ id: z.string().optional() })),
-		async c => {
-			const auth = getAuth(c)
-			if (!auth?.userId) {
-				return c.json({ error: 'Unauthorized' }, 401)
-			}
-			const userMeta = auth?.sessionClaims?.userMeta as UserMeta
+	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+		const user = c.get('USER')
 
-			if (!userMeta?.userId) {
-				const user = await getUserByClerkUserId(auth.userId)
-				if (!user) {
-					return c.json({ error: 'User not found' }, 401)
-				}
-				userMeta.userId = user.id
-			}
+		const values = c.req.valid('param')
 
-			const values = c.req.valid('param')
-
-			if (!values.id) {
-				return c.json({ error: 'Missing ID' }, 400)
-			}
-
-			const existingUser = await prisma.user.findUnique({
-				where: {
-					id: userMeta.userId,
-				},
-			})
-
-			if (!existingUser) {
-				return c.json({ error: 'User does not exist' }, 401)
-			}
-
-			const patUserInfoMatches = await prisma.personalAccessToken.findFirst({
-				where: {
-					id: values.id,
-					userId: existingUser.id,
-					email: existingUser.email,
-				},
-			})
-
-			if (!patUserInfoMatches) {
-				return c.json({ error: 'Unauthorized pat manipulation' }, 401)
-			}
-
-			await prisma.personalAccessToken.delete({
-				where: {
-					id: values.id,
-				},
-			})
-
-			return c.json({ data: { id: values.id } })
+		if (!values.id) {
+			throw new HTTPException(400, { message: 'Missing ID' })
 		}
-	)
+
+		const existingUser = await prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+		})
+
+		if (!existingUser) {
+			throw new HTTPException(401, { message: 'User does not exist' })
+		}
+
+		const patUserInfoMatches = await prisma.personalAccessToken.findFirst({
+			where: {
+				id: values.id,
+				userId: existingUser.id,
+				email: existingUser.email,
+			},
+		})
+
+		if (!patUserInfoMatches) {
+			throw new HTTPException(401, { message: 'Unauthorized PAT manipulation' })
+		}
+
+		await prisma.personalAccessToken.delete({
+			where: {
+				id: values.id,
+			},
+		})
+
+		return c.json({ data: { id: values.id } })
+	})
 
 export default app
