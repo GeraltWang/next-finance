@@ -1,5 +1,6 @@
-import { Hono } from 'hono'
 import prisma from '@/lib/prisma'
+
+import { Hono } from 'hono'
 import { currentUser, clerkClient } from '@clerk/nextjs/server'
 
 const app = new Hono().get('/', async c => {

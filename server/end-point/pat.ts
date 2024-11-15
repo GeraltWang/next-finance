@@ -1,8 +1,8 @@
 import { PatSchema } from '@/features/pat/schemas/index'
 import prisma from '@/lib/prisma'
 import type { Bindings, Variables } from '@/server/env'
+import { myValidator } from '@/server/middleware/validator'
 
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
@@ -21,7 +21,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data: pats })
 	})
-	.post('/generate-pat', zValidator('json', PatSchema), async c => {
+	.post('/generate-pat', myValidator('json', PatSchema), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('json')
@@ -68,7 +68,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data: { token } })
 	})
-	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+	.delete('/:id', myValidator('param', z.object({ id: z.string().optional() })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('param')

@@ -29,7 +29,7 @@ const authMiddleware = createMiddleware<{ Bindings: Bindings; Variables: Variabl
 
 		if (!user) {
 			console.log(
-				`------ Auth middleware: user with clerkId: ${auth.id} does not exist in db. ------`
+				`------ Auth middleware: User with clerkId: ${auth.id} does not exist in db. ------`
 			)
 			throw new HTTPException(401, { message: 'Unauthorized' })
 		}

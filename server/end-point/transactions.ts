@@ -1,7 +1,7 @@
 import { TransactionSchema, TransactionUpdateSchema } from '@/features/transactions/schemas/index'
 import prisma from '@/lib/prisma'
-import { zValidator } from '@hono/zod-validator'
 import type { Bindings, Variables } from '@/server/env'
+import { myValidator } from '@/server/middleware/validator'
 
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
@@ -11,7 +11,7 @@ import { HTTPException } from 'hono/http-exception'
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	.get(
 		'/',
-		zValidator(
+		myValidator(
 			'query',
 			z.object({
 				from: z.string().optional(),
@@ -84,7 +84,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	)
 	.get(
 		'/page',
-		zValidator(
+		myValidator(
 			'query',
 			z.object({
 				from: z.string().optional(),
@@ -192,7 +192,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			}
 		}
 	)
-	.get('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+	.get('/:id', myValidator('param', z.object({ id: z.string().optional() })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('param')
@@ -225,7 +225,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data })
 	})
-	.post('/', zValidator('json', TransactionSchema), async c => {
+	.post('/', myValidator('json', TransactionSchema), async c => {
 		const values = c.req.valid('json')
 
 		const data = await prisma.transaction.create({
@@ -239,7 +239,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data })
 	})
-	.post('/bulk-create', zValidator('json', z.array(TransactionSchema)), async c => {
+	.post('/bulk-create', myValidator('json', z.array(TransactionSchema)), async c => {
 		const values = c.req.valid('json')
 
 		const data = await prisma.transaction.createMany({
@@ -248,7 +248,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data: data.count })
 	})
-	.post('/bulk-delete', zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
+	.post('/bulk-delete', myValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('json')
@@ -268,8 +268,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	})
 	.patch(
 		'/:id',
-		zValidator('param', z.object({ id: z.string().optional() })),
-		zValidator('json', TransactionSchema),
+		myValidator('param', z.object({ id: z.string().optional() })),
+		myValidator('json', TransactionSchema),
 		async c => {
 			const user = c.get('USER')
 
@@ -309,7 +309,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	)
 	.post(
 		'/bulk-edit',
-		zValidator('json', z.object({ ids: z.array(z.string()), data: TransactionUpdateSchema })),
+		myValidator('json', z.object({ ids: z.array(z.string()), data: TransactionUpdateSchema })),
 		async c => {
 			const user = c.get('USER')
 
@@ -345,7 +345,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	)
 	.post(
 		'/bulk-mark-as-expense',
-		zValidator('json', z.object({ ids: z.array(z.string()) })),
+		myValidator('json', z.object({ ids: z.array(z.string()) })),
 		async c => {
 			const user = c.get('USER')
 
@@ -386,7 +386,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			return c.json({ data: positiveIds })
 		}
 	)
-	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+	.delete('/:id', myValidator('param', z.object({ id: z.string().optional() })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('param')

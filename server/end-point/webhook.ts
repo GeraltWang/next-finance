@@ -1,8 +1,8 @@
 import prisma from '@/lib/prisma'
 import type { Bindings, Variables } from '@/server/env'
+import { myValidator } from '@/server/middleware/validator'
 
 import { clerkClient, WebhookEvent } from '@clerk/nextjs/server'
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
 import { HTTPException } from 'hono/http-exception'
@@ -11,7 +11,7 @@ import { z } from 'zod'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
 	'/clerk',
-	zValidator(
+	myValidator(
 		'header',
 		z.object({
 			'svix-id': z.string(),

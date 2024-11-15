@@ -2,15 +2,15 @@ import dayjs from '@/lib/dayjs'
 import prisma from '@/lib/prisma'
 import { calculatePercentageChange } from '@/lib/utils'
 import type { Bindings, Variables } from '@/server/env'
+import { myValidator } from '@/server/middleware/validator'
 
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().get(
 	'/',
-	zValidator(
+	myValidator(
 		'query',
 		z.object({
 			from: z.string().optional(),

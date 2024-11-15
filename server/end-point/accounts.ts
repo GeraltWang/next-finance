@@ -1,8 +1,8 @@
 import { AccountSchema } from '@/features/accounts/schemas/index'
 import prisma from '@/lib/prisma'
 import type { Bindings, Variables } from '@/server/env'
+import { myValidator } from '@/server/middleware/validator'
 
-import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
@@ -23,7 +23,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data })
 	})
-	.get('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+	.get('/:id', myValidator('param', z.object({ id: z.string().optional() })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('param')
@@ -49,7 +49,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data })
 	})
-	.post('/', zValidator('json', AccountSchema), async c => {
+	.post('/', myValidator('json', AccountSchema), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('json')
@@ -82,7 +82,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 		return c.json({ data })
 	})
-	.post('/bulk-delete', zValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
+	.post('/bulk-delete', myValidator('json', z.object({ ids: z.array(z.string()) })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('json')
@@ -100,8 +100,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 	})
 	.patch(
 		'/:id',
-		zValidator('param', z.object({ id: z.string().optional() })),
-		zValidator('json', AccountSchema),
+		myValidator('param', z.object({ id: z.string().optional() })),
+		myValidator('json', AccountSchema),
 		async c => {
 			const user = c.get('USER')
 
@@ -139,7 +139,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 			return c.json({ data })
 		}
 	)
-	.delete('/:id', zValidator('param', z.object({ id: z.string().optional() })), async c => {
+	.delete('/:id', myValidator('param', z.object({ id: z.string().optional() })), async c => {
 		const user = c.get('USER')
 
 		const values = c.req.valid('param')
