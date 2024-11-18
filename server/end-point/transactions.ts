@@ -114,7 +114,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 				throw new HTTPException(400, { message: 'Invalid from date format' })
 			}
 			if (to && !dayjs(to, 'YYYY-MM-DD', true).isValid()) {
-				throw new HTTPException(400, { message: 'invalid to date format' })
+				throw new HTTPException(400, { message: 'Invalid to date format' })
 			}
 
 			const defaultTo = dayjs().utc().endOf('day').toDate()
@@ -125,65 +125,79 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 				: defaultFrom
 			const endDate = to ? dayjs(to, 'YYYY-MM-DD').utc(true).endOf('day').toDate() : defaultTo
 
-			const skip = (Number(page) - 1) * Number(pageSize)
 			const take = Number(pageSize)
 
 			try {
-				const [data, totalCount] = await Promise.all([
-					prisma.transaction.findMany({
-						select: {
-							id: true,
-							date: true,
-							category: {
-								select: {
-									name: true,
-								},
-							},
-							categoryId: true,
-							payee: true,
-							amount: true,
-							notes: true,
-							account: {
-								select: {
-									id: true,
-									name: true,
-								},
-							},
-							accountId: true,
+				// 首先获取总记录数
+				const totalCount = await prisma.transaction.count({
+					where: {
+						account: {
+							userId: user.id,
 						},
-						where: {
-							account: {
-								userId: user.id,
-							},
-							date: {
-								gte: startDate,
-								lte: endDate,
-							},
-							...(accountId && { accountId }),
+						date: {
+							gte: startDate,
+							lte: endDate,
 						},
-						orderBy: {
-							date: 'asc',
-						},
-						skip,
-						take,
-					}),
-					prisma.transaction.count({
-						where: {
-							account: {
-								userId: user.id,
-							},
-							date: {
-								gte: startDate,
-								lte: endDate,
-							},
-							...(accountId && { accountId }),
-						},
-					}),
-				])
+						...(accountId && { accountId }),
+					},
+				})
 
-				const pageCount = Math.ceil(totalCount / take)
+				// 计算总页数，至少为1
+				const pageCount = Math.max(Math.ceil(totalCount / take), 1)
 
-				const response = { data, totalCount, page: Number(page), pageSize: take, pageCount }
+				// 将请求的页码与总页数比较，超出则调整
+				let currentPage = Number(page)
+				if (currentPage > pageCount) {
+					currentPage = pageCount
+				}
+
+				const skip = (currentPage - 1) * take
+
+				const data = await prisma.transaction.findMany({
+					select: {
+						id: true,
+						date: true,
+						category: {
+							select: {
+								name: true,
+							},
+						},
+						categoryId: true,
+						payee: true,
+						amount: true,
+						notes: true,
+						account: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						accountId: true,
+					},
+					where: {
+						account: {
+							userId: user.id,
+						},
+						date: {
+							gte: startDate,
+							lte: endDate,
+						},
+						...(accountId && { accountId }),
+					},
+					orderBy: {
+						date: 'asc',
+					},
+					skip,
+					take,
+				})
+
+				const response = {
+					data,
+					totalCount,
+					page: currentPage,
+					pageSize: take,
+					pageCount,
+				}
 
 				return c.json(response)
 			} catch (error) {
