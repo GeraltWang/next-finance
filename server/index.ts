@@ -44,6 +44,7 @@ app.onError((err, c) => {
 			err.status
 		)
 	} else {
+		console.error('----------', 'An unexpected error occurred', 'FULL ERROR: ', err)
 		return c.json(
 			{
 				error: 'Unknown Error',
